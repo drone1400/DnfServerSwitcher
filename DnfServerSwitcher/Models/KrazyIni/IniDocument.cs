@@ -9,7 +9,10 @@ namespace DnfServerSwitcher.Models.KrazyIni {
         public Dictionary<string, IniSection> Sections { get; private set; } = new Dictionary<string, IniSection>();
 
         public IniSection this[string section] {
-            get => this.Sections[section];
+            get {
+                if (!this.Sections.ContainsKey(section)) this.Sections[section] = new IniSection(section);
+                return this.Sections[section];
+            } 
             set {
                 this.Sections[section] = value;
             }
