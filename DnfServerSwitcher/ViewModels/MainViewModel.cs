@@ -124,6 +124,11 @@ namespace DnfServerSwitcher.ViewModels {
                 if (this.CheckSystemIniExists() == true) {
                     IniDocument data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
                     data["Engine.Engine"]["NetworkDevice"] = new IniKey("NetworkDevice", "Engine.AgentNetDriver");
+                    // set net speeds and client rates to recommended values
+                    data["Engine.Player"]["ConfiguredInternetSpeed"] = new IniKey("ConfiguredInternetSpeed", "20000");
+                    data["Engine.Player"]["ConfiguredLanSpeed"] = new IniKey("ConfiguredLanSpeed", "20000");
+                    data["Engine.TcpNetDriver"]["MaxClientRate"] = new IniKey("MaxClientRate", "20000");
+                    data["Engine.AgentNetDriver"]["MaxClientRate"] = new IniKey("MaxClientRate", "20000");
                     DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
                 }
 
@@ -141,6 +146,11 @@ namespace DnfServerSwitcher.ViewModels {
                 if (this.CheckSystemIniExists() == true) {
                     IniDocument data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
                     data["Engine.Engine"]["NetworkDevice"] = new IniKey("NetworkDevice", "Engine.TCPNetDriver");
+                    // set net speeds and client rates to recommended values
+                    data["Engine.Player"]["ConfiguredInternetSpeed"] = new IniKey("ConfiguredInternetSpeed", "20000");
+                    data["Engine.Player"]["ConfiguredLanSpeed"] = new IniKey("ConfiguredLanSpeed", "20000");
+                    data["Engine.TcpNetDriver"]["MaxClientRate"] = new IniKey("MaxClientRate", "20000");
+                    data["Engine.AgentNetDriver"]["MaxClientRate"] = new IniKey("MaxClientRate", "20000");
                     DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
                 }
 
