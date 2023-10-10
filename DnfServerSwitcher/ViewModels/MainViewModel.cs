@@ -25,7 +25,7 @@ namespace DnfServerSwitcher.ViewModels {
             OnPropertyChanged(propertyName);
             return true;
         }
-        
+
         private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
 
         public string Dnf2011ExePath {
@@ -39,7 +39,7 @@ namespace DnfServerSwitcher.ViewModels {
                 }
             }
         }
-        
+
         public string Dnf2011SystemIniPath {
             get => this._myCfg.Dnf2011SystemIniPath;
             set {
@@ -54,13 +54,13 @@ namespace DnfServerSwitcher.ViewModels {
 
         public ICommand CmdLaunchNormal => this._cmdLaunchNormal ??= new MuhCommand(this.LaunchDnf2011Normal, this.CanLaunch);
         private MuhCommand? _cmdLaunchNormal;
-        
+
         public ICommand CmdLaunchDeprecated => this._cmdLaunchDeprecated ??= new MuhCommand(this.LaunchDnf2011Deprecated, this.CanLaunch);
         private MuhCommand? _cmdLaunchDeprecated;
-        
+
         public ICommand CmdBrowseExe => this._cmdBrowseExe ??= new MuhCommand(this.BrowseDnf2011Exe, () => true);
         private MuhCommand? _cmdBrowseExe;
-        
+
         public ICommand CmdBrowseSystemIni => this._cmdBrowseSystemIni ??= new MuhCommand(this.BrowseDnf2011SystemIni, () => true);
         private MuhCommand? _cmdBrowseSystemIni;
 
@@ -83,7 +83,7 @@ namespace DnfServerSwitcher.ViewModels {
                 }
                 this._myCfg.SaveToIni();
             }
-        
+
         }
 
         private bool CanLaunch() {
@@ -107,10 +107,10 @@ namespace DnfServerSwitcher.ViewModels {
             if (File.Exists(this.Dnf2011SystemIniPath) == false) {
                 if (
                     MessageBox.Show(
-                        "system.ini file not found! Attempt to launch game anyway?", 
-                        "Error", 
-                        MessageBoxButton.YesNo, 
-                        MessageBoxImage.Error) 
+                        "system.ini file not found! Attempt to launch game anyway?",
+                        "Error",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Error)
                     == MessageBoxResult.No) return false;
                 return null;
             }
@@ -118,27 +118,37 @@ namespace DnfServerSwitcher.ViewModels {
         }
 
         private void LaunchDnf2011Normal() {
-            if (!this.CheckExeExists()) return;
-            
-            if (this.CheckSystemIniExists() == true) {
-                IniDocument data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
-                data["Engine.Engine"]["NetworkDevice"] = new IniKey("NetworkDevice", "Engine.AgentNetDriver");
-                DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
+            try {
+                if (!this.CheckExeExists()) return;
+
+                if (this.CheckSystemIniExists() == true) {
+                    IniDocument data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
+                    data["Engine.Engine"]["NetworkDevice"] = new IniKey("NetworkDevice", "Engine.AgentNetDriver");
+                    DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
+                }
+
+                Process.Start(this.Dnf2011ExePath);
+            } catch (Exception ex) {
+                MessageBox.Show("An error has occurred..." + Environment.NewLine + Environment.NewLine +
+                    ExceptionHelper.GetExceptionAsString(ex), "ERROR!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            
-            Process.Start(this.Dnf2011ExePath);
         }
-        
+
         private void LaunchDnf2011Deprecated() {
-            if (!this.CheckExeExists()) return;
-            
-            if (this.CheckSystemIniExists() == true) {
-                IniDocument data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
-                data["Engine.Engine"]["NetworkDevice"] = new IniKey("NetworkDevice", "Engine.TCPNetDriver");
-                DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
+            try {
+                if (!this.CheckExeExists()) return;
+
+                if (this.CheckSystemIniExists() == true) {
+                    IniDocument data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
+                    data["Engine.Engine"]["NetworkDevice"] = new IniKey("NetworkDevice", "Engine.TCPNetDriver");
+                    DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
+                }
+
+                Process.Start(this.Dnf2011ExePath);
+            } catch (Exception ex) {
+                MessageBox.Show("An error has occurred..." + Environment.NewLine + Environment.NewLine +
+                    ExceptionHelper.GetExceptionAsString(ex), "ERROR!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            
-            Process.Start(this.Dnf2011ExePath);
         }
 
         private void BrowseDnf2011Exe() {
@@ -154,7 +164,7 @@ namespace DnfServerSwitcher.ViewModels {
                 this.Dnf2011ExePath = ofd.FileName;
             }
         }
-        
+
         private void BrowseDnf2011SystemIni() {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "DNF System.ini|system.ini|INI file|*.ini";
@@ -168,6 +178,6 @@ namespace DnfServerSwitcher.ViewModels {
                 this.Dnf2011SystemIniPath = ofd.FileName;
             }
         }
-        
+
     }
 }
