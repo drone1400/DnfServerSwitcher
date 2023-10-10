@@ -13,6 +13,7 @@ namespace DnfServerSwitcher.Models {
 
         public void SaveToIni() {
             IniDocument data = new IniDocument();
+            data["Files"] = new IniSection("Files");
             data["Files"]["Dnf2011ExePath"] = new IniKey("Dnf2011ExePath",this.Dnf2011ExePath);
             data["Files"]["Dnf2011SystemIniPath"] = new IniKey("Dnf2011SystemIniPath",this.Dnf2011SystemIniPath);
 
