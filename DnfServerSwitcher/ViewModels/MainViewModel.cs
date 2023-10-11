@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -138,6 +139,52 @@ namespace DnfServerSwitcher.ViewModels {
                     ExceptionHelper.GetExceptionAsString(ex), "ERROR!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        
+        private static string GetSha256(string filePath) {
+            if (!File.Exists(filePath)) return "";
+            using (SHA256 cks = SHA256.Create())
+            {
+                byte[] cksBytes = cks.ComputeHash(File.ReadAllBytes(filePath));
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < cksBytes.Length; i++)
+                {
+                    sb.Append(cksBytes[i].ToString("x2"));
+                }
+                return sb.ToString();
+            }
+        }
+
+        private void TryCopyDeprecatedFiles(bool verifyChecksumIfExist) {
+            try {
+                string fileNameMod = "dnWindow.u";
+                string filePathMod = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ThirdParty", fileNameMod);
+                // check mod file exists
+                if (!File.Exists(filePathMod)) return;
+                FileInfo finfo = new FileInfo(this.Dnf2011ExePath);
+                
+                // check DNF directory exists
+                if (finfo.Directory?.Exists != true) return;
+                FileInfo finfo2 = new FileInfo(Path.Combine(finfo.Directory.FullName, fileNameMod));
+                
+                // check if the mod file already exists in the DNF directory
+                if (finfo2.Exists) {
+                    if (!verifyChecksumIfExist) return;
+                    
+                    // verify file checksum
+                    string cks = GetSha256(finfo.FullName);
+                    string cks2 = GetSha256(finfo2.FullName);
+                    if (string.IsNullOrWhiteSpace(cks) == false &&
+                        string.IsNullOrWhiteSpace(cks2) == false &&
+                        cks == cks2) {
+                        // checksums match, exit
+                        return;
+                    }
+                }
+                File.Copy(filePathMod, finfo2.FullName, overwrite:true);
+            } catch (Exception) {
+                // TODO do something with the exception?...
+            }
+        }
 
         private void LaunchDnf2011Deprecated() {
             try {
@@ -154,6 +201,8 @@ namespace DnfServerSwitcher.ViewModels {
                     DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
                 }
 
+                this.TryCopyDeprecatedFiles(true);
+                
                 Process.Start(this.Dnf2011ExePath);
             } catch (Exception ex) {
                 MessageBox.Show("An error has occurred..." + Environment.NewLine + Environment.NewLine +

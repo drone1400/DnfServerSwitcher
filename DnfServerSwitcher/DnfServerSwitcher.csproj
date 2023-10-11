@@ -17,6 +17,15 @@
         <SubType>Designer</SubType>
       </Page>
     </ItemGroup>
+    
+    <ItemGroup>
+      <None Update="ThirdParty\dnWindow.u">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="ThirdParty\dnWindow_LICENSE">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 
 
 
