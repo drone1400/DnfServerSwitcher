@@ -12,6 +12,7 @@ using System.Windows.Input;
 using DnfServerSwitcher.Models;
 using DnfServerSwitcher.Models.KrazyIni;
 using DnfServerSwitcher.Models.KrazyIni.Data;
+using DnfServerSwitcher.Models.Trace;
 using Microsoft.Win32;
 
 namespace DnfServerSwitcher.ViewModels {
@@ -65,26 +66,47 @@ namespace DnfServerSwitcher.ViewModels {
         public ICommand CmdBrowseSystemIni => this._cmdBrowseSystemIni ??= new MuhCommand(this.BrowseDnf2011SystemIni, () => true);
         private MuhCommand? _cmdBrowseSystemIni;
 
+        
+        private MyTraceListenerLogger _logger;
+        
         public MainViewModel() {
+
+            this._logger = new MyTraceListenerLogger(LocationHelper.AppBaseDirectory, "DnfSS_ErrorLog", false) {
+                FlushAfterEachMessage = true,
+                MaxTraceLevel = MyTraceLevel.Error,
+            };
+            MyTrace.Global.Listeners.Add(this._logger);
+            
             this.Initialize();
         }
 
         private void Initialize() {
-            if (!this._myCfg.LoadFromIni()) {
+            if (!this._myCfg.LoadFromIni() ||
+                string.IsNullOrWhiteSpace(this._myCfg.Dnf2011ExePath) ||
+                string.IsNullOrWhiteSpace(this._myCfg.Dnf2011SystemIniPath)) {
                 // could not load config file.. try to auto detect paths!
                 Dnf2011Finder df = new Dnf2011Finder();
                 df.FindPaths();
+                
+                if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) ||
+                    df.Dnf2011SystemIni.Count == 0) {
+                    MessageBox.Show("Could not locate DNF files, please manually set the correct paths for the Duke Nukem Forever exe and the System.ini file!", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
                 if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) == false) {
                     this._myCfg.Dnf2011ExePath = df.Dnf2011Exe;
                 }
                 if (df.Dnf2011SystemIni.Count > 0) {
+                    if (df.Dnf2011SystemIni.Count > 1) {
+                        MessageBox.Show("Multiple Steam users with different System.ini files detected! Defaulting to first user... Please manually select the correct System.ini file if you are using a different user...", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                     // TODO... give some user prompt to select what user's data to use?...
                     // for now just default to first value i guess...
                     this._myCfg.Dnf2011SystemIniPath = df.Dnf2011SystemIni.First().Value;
                 }
+                
                 this._myCfg.SaveToIni();
             }
-
         }
 
         private bool CanLaunch() {
@@ -119,35 +141,37 @@ namespace DnfServerSwitcher.ViewModels {
         }
 
         private void LaunchDnf2011Normal() {
-            try {
-                if (!this.CheckExeExists()) return;
+            if (!this.CheckExeExists()) return;
 
-                if (this.CheckSystemIniExists() == true) {
-                    IniDocument data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
-                    data["Engine.Engine"]["NetworkDevice"] = new IniKey("NetworkDevice", "Engine.AgentNetDriver");
-                    // set net speeds and client rates to recommended values
-                    data["Engine.Player"]["ConfiguredInternetSpeed"] = new IniKey("ConfiguredInternetSpeed", "20000");
-                    data["Engine.Player"]["ConfiguredLanSpeed"] = new IniKey("ConfiguredLanSpeed", "20000");
-                    data["Engine.TcpNetDriver"]["MaxClientRate"] = new IniKey("MaxClientRate", "20000");
-                    data["Engine.AgentNetDriver"]["MaxClientRate"] = new IniKey("MaxClientRate", "20000");
-                    DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
+            if (this.CheckSystemIniExists() == true) {
+                IniDocument? data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
+                if (data == null) {
+                    MessageBox.Show("An error has occurred parsing the System.ini file, Duke will not be launched...",  "ERROR parsing System.ini!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-
-                Process.Start(this.Dnf2011ExePath);
-            } catch (Exception ex) {
-                MessageBox.Show("An error has occurred..." + Environment.NewLine + Environment.NewLine +
-                    ExceptionHelper.GetExceptionAsString(ex), "ERROR!", MessageBoxButton.OK, MessageBoxImage.Error);
+                
+                data["Engine.Engine"]["NetworkDevice"].SetSimpleValue("Engine.AgentNetDriver");
+                // set net speeds and client rates to recommended values
+                data["Engine.Player"]["ConfiguredInternetSpeed"].SetSimpleValue("20000");
+                data["Engine.Player"]["ConfiguredLanSpeed"].SetSimpleValue("20000");
+                data["Engine.TcpNetDriver"]["MaxClientRate"].SetSimpleValue("20000");
+                data["Engine.AgentNetDriver"]["MaxClientRate"].SetSimpleValue("20000");
+                
+                if (!DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data)) {
+                    MessageBox.Show("An error has occurred saving the System.ini file, Duke will not be launched...",  "ERROR saving System.ini!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
+
+            Process.Start(this.Dnf2011ExePath);
         }
-        
+
         private static string GetSha256(string filePath) {
             if (!File.Exists(filePath)) return "";
-            using (SHA256 cks = SHA256.Create())
-            {
+            using (SHA256 cks = SHA256.Create()) {
                 byte[] cksBytes = cks.ComputeHash(File.ReadAllBytes(filePath));
                 StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < cksBytes.Length; i++)
-                {
+                for (int i = 0; i < cksBytes.Length; i++) {
                     sb.Append(cksBytes[i].ToString("x2"));
                 }
                 return sb.ToString();
@@ -161,15 +185,15 @@ namespace DnfServerSwitcher.ViewModels {
                 // check mod file exists
                 if (!File.Exists(filePathMod)) return;
                 FileInfo finfo = new FileInfo(this.Dnf2011ExePath);
-                
+
                 // check DNF directory exists
                 if (finfo.Directory?.Exists != true) return;
                 FileInfo finfo2 = new FileInfo(Path.Combine(finfo.Directory.FullName, fileNameMod));
-                
+
                 // check if the mod file already exists in the DNF directory
                 if (finfo2.Exists) {
                     if (!verifyChecksumIfExist) return;
-                    
+
                     // verify file checksum
                     string cks = GetSha256(finfo.FullName);
                     string cks2 = GetSha256(finfo2.FullName);
@@ -180,34 +204,37 @@ namespace DnfServerSwitcher.ViewModels {
                         return;
                     }
                 }
-                File.Copy(filePathMod, finfo2.FullName, overwrite:true);
-            } catch (Exception) {
-                // TODO do something with the exception?...
+                File.Copy(filePathMod, finfo2.FullName, overwrite: true);
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, ex);
             }
         }
 
         private void LaunchDnf2011Deprecated() {
-            try {
-                if (!this.CheckExeExists()) return;
+            if (!this.CheckExeExists()) return;
 
-                if (this.CheckSystemIniExists() == true) {
-                    IniDocument data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
-                    data["Engine.Engine"]["NetworkDevice"] = new IniKey("NetworkDevice", "Engine.TCPNetDriver");
-                    // set net speeds and client rates to recommended values
-                    data["Engine.Player"]["ConfiguredInternetSpeed"] = new IniKey("ConfiguredInternetSpeed", "20000");
-                    data["Engine.Player"]["ConfiguredLanSpeed"] = new IniKey("ConfiguredLanSpeed", "20000");
-                    data["Engine.TcpNetDriver"]["MaxClientRate"] = new IniKey("MaxClientRate", "20000");
-                    data["Engine.AgentNetDriver"]["MaxClientRate"] = new IniKey("MaxClientRate", "20000");
-                    DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data);
+            if (this.CheckSystemIniExists() == true) {
+                IniDocument? data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
+                if (data == null) {
+                    MessageBox.Show("An error has occurred parsing the System.ini file, Duke will not be launched...",  "ERROR parsing System.ini!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-
-                this.TryCopyDeprecatedFiles(true);
-                
-                Process.Start(this.Dnf2011ExePath);
-            } catch (Exception ex) {
-                MessageBox.Show("An error has occurred..." + Environment.NewLine + Environment.NewLine +
-                    ExceptionHelper.GetExceptionAsString(ex), "ERROR!", MessageBoxButton.OK, MessageBoxImage.Error);
+                data["Engine.Engine"]["NetworkDevice"].SetSimpleValue("Engine.TCPNetDriver");
+                // set net speeds and client rates to recommended values
+                data["Engine.Player"]["ConfiguredInternetSpeed"].SetSimpleValue("20000");
+                data["Engine.Player"]["ConfiguredLanSpeed"].SetSimpleValue("20000");
+                data["Engine.TcpNetDriver"]["MaxClientRate"].SetSimpleValue("20000");
+                data["Engine.AgentNetDriver"]["MaxClientRate"].SetSimpleValue("20000");
+                if (!DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data)) {
+                    MessageBox.Show("An error has occurred saving the System.ini file, Duke will not be launched...",  "ERROR saving System.ini!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
+
+            this.TryCopyDeprecatedFiles(true);
+
+            Process.Start(this.Dnf2011ExePath);
+
         }
 
         private void BrowseDnf2011Exe() {

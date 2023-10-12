@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using DnfServerSwitcher.Models.Trace;
 using Microsoft.Win32;
 namespace DnfServerSwitcher.Models {
     public class Dnf2011Finder {
@@ -10,31 +11,35 @@ namespace DnfServerSwitcher.Models {
         public Dictionary<string, string> Dnf2011SystemIni { get; private set; } = new Dictionary<string, string>();
 
         public void FindPaths() {
-            this.FindWindowsDnfInstallPaths();
-            this.FindWindowsSteamInstallPaths();
+            try {
+                this.FindWindowsDnfInstallPaths();
+                this.FindWindowsSteamInstallPaths();
 
-            if (Directory.Exists(this.Dnf2011InstallPath) == false) {
-                this.Dnf2011InstallPath = "";
+                if (Directory.Exists(this.Dnf2011InstallPath) == false) {
+                    this.Dnf2011InstallPath = "";
+                }
+                if (Directory.Exists(this.SteamInstallPath) == false) {
+                    this.SteamInstallPath = "";
+                }
+
+                if (string.IsNullOrWhiteSpace(this.Dnf2011InstallPath) &&
+                    string.IsNullOrWhiteSpace(this.SteamInstallPath) == false) {
+                    // could not find DNF install path but found Steam install path...
+                    // fall back to default path inside the steam folder...
+                    this.Dnf2011InstallPath = Path.Combine(this.SteamInstallPath, @"steamapps\common\Duke Nukem Forever");
+                }
+
+                this.Dnf2011Exe = string.IsNullOrWhiteSpace(this.Dnf2011InstallPath)
+                    ? "" : Path.Combine(this.Dnf2011InstallPath, @"System\DukeForever.exe");
+
+                if (File.Exists(this.Dnf2011Exe) == false) {
+                    this.Dnf2011Exe = "";
+                }
+
+                this.FindWindowsDnfConfigFiles();
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, ex);
             }
-            if (Directory.Exists(this.SteamInstallPath) == false) {
-                this.SteamInstallPath = "";
-            }
-
-            if (string.IsNullOrWhiteSpace(this.Dnf2011InstallPath) &&
-                string.IsNullOrWhiteSpace(this.SteamInstallPath) == false) {
-                // could not find DNF install path but found Steam install path...
-                // fall back to default path inside the steam folder...
-                this.Dnf2011InstallPath = Path.Combine(this.SteamInstallPath, @"steamapps\common\Duke Nukem Forever");
-            }
-
-            this.Dnf2011Exe = string.IsNullOrWhiteSpace(this.Dnf2011InstallPath)
-                ? "" : Path.Combine(this.Dnf2011InstallPath, @"System\DukeForever.exe");
-
-            if (File.Exists(this.Dnf2011Exe) == false) {
-                this.Dnf2011Exe = "";
-            }
-
-            this.FindWindowsDnfConfigFiles();
         }
 
         private void FindWindowsDnfConfigFiles() {
@@ -82,7 +87,7 @@ namespace DnfServerSwitcher.Models {
 
                 this.SteamInstallPath = pathStr;
             } catch (Exception ex) {
-                // TODO... log or alert the user?
+                Glog.Error(MyTraceCategory.General, "Unexpected error locating Steam install path! Unable to automatically determine install paths...", ex);
                 this.SteamInstallPath = "";
             } finally {
                 key?.Dispose();
@@ -112,7 +117,7 @@ namespace DnfServerSwitcher.Models {
 
                 this.Dnf2011InstallPath = pathStr;
             } catch (Exception ex) {
-                // TODO... log or alert the user?
+                Glog.Error(MyTraceCategory.General, "Unexpected error locating DNF2011 install path! Unable to automatically determine install paths...", ex);
                 this.Dnf2011InstallPath = "";
             } finally {
                 key?.Dispose();
