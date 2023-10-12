@@ -18,7 +18,11 @@ public class IniSection {
     }
 
     public IniKey this[string key] {
-        get => this.KeyDictionary[key];
+        get {
+            if (this.KeyDictionary.TryGetValue(key, out IniKey? item)) return item; 
+            this.KeyDictionary.Add(key, new IniKey(key));
+            return this.KeyDictionary[key];
+        }
         set {
             this.KeyDictionary[key] = value;
         }
