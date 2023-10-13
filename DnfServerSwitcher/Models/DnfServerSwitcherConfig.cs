@@ -11,7 +11,7 @@ namespace DnfServerSwitcher.Models {
         public const string INI_FILE_NAME = "DnfServerSwitcher.ini";
         public string Dnf2011ExePath { get; set; } = "";
         public string Dnf2011SystemIniPath { get; set; } = "";
-        public string Theme { get; set; } = MyThemes.Default.ToString();
+        public string Theme { get; set; } = MyThemes.DookieNookie2001.ToString();
 
         public void SaveToIni() {
             try {
