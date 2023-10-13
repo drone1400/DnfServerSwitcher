@@ -28,6 +28,7 @@ namespace DnfServerSwitcher.ViewModels {
             return true;
         }
 
+        public DnfServerSwitcherConfig MyCfg { get => this._myCfg; }
         private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
 
         public string Dnf2011ExePath {
