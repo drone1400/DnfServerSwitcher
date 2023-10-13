@@ -7,7 +7,7 @@
         <UseWPF>true</UseWPF>
         <Nullable>enable</Nullable>
         <LangVersion>10</LangVersion>
-        <Version>1.2.1</Version>
+        <Version>1.2.2</Version>
         <ApplicationIcon>.\Resources\nuke.ico</ApplicationIcon>
     </PropertyGroup>
     
