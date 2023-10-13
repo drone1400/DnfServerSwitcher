@@ -8,6 +8,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>10</LangVersion>
         <Version>1.0.0</Version>
+        <ApplicationIcon>.\Resources\nuke.ico</ApplicationIcon>
     </PropertyGroup>
     
     <ItemGroup>
@@ -25,6 +26,17 @@
       <None Update="ThirdParty\dnWindow_LICENSE">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <None Remove="Resources\button-deprecated.png" />
+      <Resource Include="Resources\button-deprecated.png" />
+      <None Remove="Resources\button-normal.png" />
+      <Resource Include="Resources\button-normal.png" />
+      <None Remove="Resources\DNFSwitcherLogo.png" />
+      <Resource Include="Resources\DNFSwitcherLogo.png" />
+      <None Remove="Resources\nuke.ico" />
+      <Resource Include="Resources\nuke.ico" />
     </ItemGroup>
 
 
