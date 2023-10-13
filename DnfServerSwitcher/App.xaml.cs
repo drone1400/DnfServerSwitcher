@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using DnfServerSwitcher.Models;
 using DnfServerSwitcher.Models.Trace;
 using DnfServerSwitcher.ViewModels;
 using DnfServerSwitcher.Views;
@@ -15,7 +16,8 @@ namespace DnfServerSwitcher {
     /// </summary>
     public partial class App : Application {
 
-        private MainWindow? _mainWindow;
+        private DookieNookieWindow _dookieWindow;
+        private MainWindow? _normalWindow;
         private MainViewModel? _mainVm;
         
         public App() {
@@ -37,16 +39,23 @@ namespace DnfServerSwitcher {
         
         protected override void OnStartup(StartupEventArgs e) {
             this._mainVm = new MainViewModel();
-            this._mainWindow = new MainWindow();
-            this._mainWindow.Content = new MainView();
-            this._mainWindow.DataContext = this._mainVm;
+            if (this._mainVm.MyCfg.Theme == MyThemes.DookieNookie2001.ToString()) {
+                this._dookieWindow = new DookieNookieWindow();
+                this._dookieWindow.DataContext = this._mainVm;
+                this._dookieWindow.Show();
+                this._dookieWindow.Closed += this.NormalWindowOnClosed;
+            } else {
+                this._normalWindow = new MainWindow();
+                this._normalWindow.DataContext = this._mainVm;
+                this._normalWindow.Show();
+                this._normalWindow.Closed += this.NormalWindowOnClosed;
+            }
             
-            this._mainWindow.Show();
-            this._mainWindow.Closed += MainWindowOnClosed;
+            
             
             base.OnStartup(e);
         }
-        private void MainWindowOnClosed(object sender, EventArgs e) {
+        private void NormalWindowOnClosed(object sender, EventArgs e) {
             this._mainVm?.MyCfg.SaveToIni();
             App.Current.Shutdown();
         }

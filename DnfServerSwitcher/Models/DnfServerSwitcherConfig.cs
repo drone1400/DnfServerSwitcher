@@ -11,13 +11,14 @@ namespace DnfServerSwitcher.Models {
         public const string INI_FILE_NAME = "DnfServerSwitcher.ini";
         public string Dnf2011ExePath { get; set; } = "";
         public string Dnf2011SystemIniPath { get; set; } = "";
+        public string Theme { get; set; } = MyThemes.Default.ToString();
 
         public void SaveToIni() {
             try {
                 IniDocument data = new IniDocument();
-                data["Files"] = new IniSection("Files");
-                data["Files"]["Dnf2011ExePath"] = new IniKey("Dnf2011ExePath", this.Dnf2011ExePath);
-                data["Files"]["Dnf2011SystemIniPath"] = new IniKey("Dnf2011SystemIniPath", this.Dnf2011SystemIniPath);
+                data["Files"]["Dnf2011ExePath"].SetSimpleValue(this.Dnf2011ExePath);
+                data["Files"]["Dnf2011SystemIniPath"].SetSimpleValue(this.Dnf2011SystemIniPath);
+                data["Theme"]["ThemeName"].SetSimpleValue(this.Theme);
 
                 string iniPath = Path.Combine(LocationHelper.AppBaseDirectory, INI_FILE_NAME);
                 data.WriteToFile(iniPath, Encoding.UTF8);
@@ -41,6 +42,12 @@ namespace DnfServerSwitcher.Models {
                     IniDocument doc = new IniDocument(rawDoc);
                     this.Dnf2011ExePath = doc["Files"]["Dnf2011ExePath"].GetSimpleValue();
                     this.Dnf2011SystemIniPath = doc["Files"]["Dnf2011SystemIniPath"].GetSimpleValue();
+                    string theme = doc["Theme"]["ThemeName"].GetSimpleValue();
+                    if (theme == MyThemes.DookieNookie2001.ToString()) {
+                        this.Theme = theme;
+                    } else {
+                        this.Theme = MyThemes.Default.ToString();
+                    }
                 } catch (Exception) {
                     this.Dnf2011ExePath = "";
                     this.Dnf2011SystemIniPath = "";

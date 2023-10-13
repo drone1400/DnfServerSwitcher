@@ -1,0 +1,332 @@
+﻿<Window x:Class="DnfServerSwitcher.Views.DookieNookieWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DnfServerSwitcher.Views"
+        mc:Ignorable="d"
+
+        Title="DNF 2011 Server Switcher"
+        Height="500"
+        Width="800"
+        MinHeight="500"
+        MinWidth="500"
+
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Foreground="White"
+        ResizeMode="CanResize"
+
+        IsEnabled="True"
+
+        WindowStartupLocation="CenterScreen">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="50"
+                      ResizeBorderThickness="10" />
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="ThemeBrushTextLight">#FFFFFF</SolidColorBrush>
+        <SolidColorBrush x:Key="ThemeBrushTextDark">#000000</SolidColorBrush>
+        <SolidColorBrush x:Key="ThemeBrushLight">#ADADE6</SolidColorBrush>
+        <SolidColorBrush x:Key="ThemeBrushLight2">#8D8DC6</SolidColorBrush>
+        <SolidColorBrush x:Key="ThemeBrushDisabled">#6E6E91</SolidColorBrush>
+        <SolidColorBrush x:Key="ThemeBrushDark">#3C3C84</SolidColorBrush>
+        <SolidColorBrush x:Key="ThemeBrushDarker">#171A3B</SolidColorBrush>
+        <SolidColorBrush x:Key="ThemeBrushBorderLight">#FEFEFE</SolidColorBrush>
+        <SolidColorBrush x:Key="ThemeBrushBorderDark">#2D2D46</SolidColorBrush>
+        <Color x:Key="ThemeColorGlow">#FAFAFA</Color>
+
+        <SolidColorBrush x:Key="ThemeBrushTitleButtonForeground">#000000</SolidColorBrush>
+        <RadialGradientBrush x:Key="ThemeBrushTitleButtonBackground"
+                             GradientOrigin="0.5,0.5"
+                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <RadialGradientBrush.GradientStops>
+                <GradientStop Color="#ADADE6" Offset="0" />
+                <GradientStop Color="#A0A0D3" Offset="0.8" />
+                <GradientStop Color="#6E6E91" Offset="1" />
+            </RadialGradientBrush.GradientStops>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="ThemeBrushTitleButtonBackgroundMouseOver"
+                             GradientOrigin="0.5,0.5"
+                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <RadialGradientBrush.GradientStops>
+                <GradientStop Color="#A0A0D3" Offset="0" />
+                <GradientStop Color="#6E6E91" Offset="0.8" />
+                <GradientStop Color="#4E4E71" Offset="1" />
+            </RadialGradientBrush.GradientStops>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="ThemeBrushTitleButtonBackgroundPressed"
+                             GradientOrigin="0.5,0.5"
+                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <RadialGradientBrush.GradientStops>
+                <GradientStop Color="#ADADE6" Offset="0" />
+                <GradientStop Color="#ADADE6" Offset="0.6" />
+                <GradientStop Color="#4E4E71" Offset="1" />
+            </RadialGradientBrush.GradientStops>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="ThemeBrushTitleButtonBackgroundDisabled"
+                             GradientOrigin="0.5,0.5"
+                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <RadialGradientBrush.GradientStops>
+                <GradientStop Color="#6E6E91" Offset="0" />
+                <GradientStop Color="#6E6E91" Offset="0.8" />
+                <GradientStop Color="#6E6E91" Offset="1" />
+            </RadialGradientBrush.GradientStops>
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="ThemeBrushTitleButtonBorderBrush"
+                             GradientOrigin="0.5,0.5"
+                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <RadialGradientBrush.GradientStops>
+                <GradientStop Color="#6E6E91" Offset="0" />
+                <GradientStop Color="#414156" Offset="1" />
+            </RadialGradientBrush.GradientStops>
+        </RadialGradientBrush>
+
+        <Style x:Key="TitleBarButton" TargetType="{x:Type Button}">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+
+            <Setter Property="Width" Value="Auto" />
+            <Setter Property="Height" Value="Auto" />
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="Padding" Value="0" />
+
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontFamily" Value="Webdings" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeBrushTitleButtonForeground}" />
+            <Setter Property="Background" Value="{DynamicResource ThemeBrushTitleButtonBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBrushTitleButtonBorderBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="20"
+                                Width="32"
+                                Height="32"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter Focusable="False"
+                                              RecognizesAccessKey="True"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background"
+                                        Value="{DynamicResource ThemeBrushTitleButtonBackgroundMouseOver}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background"
+                                        Value="{DynamicResource ThemeBrushTitleButtonBackgroundPressed}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background"
+                                        Value="{DynamicResource ThemeBrushTitleButtonBackgroundDisabled}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style TargetType="Label" 
+               BasedOn="{StaticResource {x:Type Label}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeBrushTextLight}" />
+        </Style>
+        
+        <Style TargetType="TextBox" 
+               BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeBrushTextDark}" />
+            <Setter Property="Background" Value="{DynamicResource ThemeBrushLight}" />
+            
+            <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TextBox}">
+                    <Border x:Name="border" 
+                            CornerRadius="5"
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            Background="{TemplateBinding Background}" >
+                        <ScrollViewer x:Name="PART_ContentHost" 
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Center"
+                                      Focusable="false" 
+                                      HorizontalScrollBarVisibility="Hidden" 
+                                      VerticalScrollBarVisibility="Hidden"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="BorderBrush" TargetName="border" 
+                                    Value="{DynamicResource ThemeBrushDisabled}"/>
+                            <Setter Property="Background" TargetName="border" 
+                                    Value="{DynamicResource ThemeBrushDisabled}"/>
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource ThemeBrushDisabled}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="BorderBrush" TargetName="border" 
+                                    Value="{DynamicResource ThemeBrushLight2}"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsInactiveSelectionHighlightEnabled" 
+                                           Value="true"/>
+                                <Condition Property="IsSelectionActive" 
+                                           Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="SelectionBrush" 
+                                    Value="{DynamicResource ThemeBrushDark}"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsSelectionActive" 
+                                 Value="true">
+                            <Setter Property="SelectionBrush" 
+                                    Value="{DynamicResource ThemeBrushDark}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        </Style>
+        <Style TargetType="Button" 
+               BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            
+            <Setter Property="Foreground" Value="{DynamicResource ThemeBrushTextDark}" />
+            <Setter Property="Background" Value="{DynamicResource ThemeBrushLight}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBrushDark}" />
+            <Setter Property="BorderThickness" Value="2"/>
+            
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="10"
+                                Width="Auto"
+                                Height="Auto"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter Focusable="False"
+                                              RecognizesAccessKey="True"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background"
+                                        Value="{DynamicResource ThemeBrushLight2}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background"
+                                        Value="{DynamicResource ThemeBrushDark}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background"
+                                        Value="{DynamicResource ThemeBrushDisabled}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border CornerRadius="20" Padding="8"
+            SizeChanged="MainWindow_OnSizeChanged">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="12"
+                              Direction="-90"
+                              RenderingBias="Quality"
+                              ShadowDepth="0"
+                              Color="{DynamicResource ThemeColorGlow}" />
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Path
+                Grid.Row="0" Grid.RowSpan="2"
+                Name="PathLayerZero"
+                Width="Auto" Height="Auto"
+                Data="M 0,0 L 500,0 L 500, 500 L 0, 500 Z"
+                Fill="{DynamicResource ThemeBrushLight}" />
+
+            <Path
+                Grid.Row="0" Grid.RowSpan="2"
+                Name="PathLayerOne"
+                Width="Auto" Height="Auto"
+                Data="M 0,0 L 500,0 L 500, 500 L 0, 500 Z"
+                Fill="{DynamicResource ThemeBrushDark}" />
+
+            <Border
+                Grid.Row="0" Grid.RowSpan="2"
+                Name="BorderMainContent"
+                CornerRadius="8"
+                BorderThickness="1.5"
+                BorderBrush="{DynamicResource ThemeBrushBorderLight}"
+                Background="{DynamicResource ThemeBrushDarker}">
+                <local:MainView>
+                </local:MainView>
+            </Border>
+
+            <!-- Caption Bar -->
+            <TextBlock
+                Grid.Row="0"
+                Name="TextBlockTitle"
+                Text="{Binding Path=Title, 
+                                RelativeSource={RelativeSource 
+                                AncestorType={x:Type local:DookieNookieWindow}}}"
+                Background="Transparent"
+                Foreground="{DynamicResource ThemeBrushTextLight}"
+                FontSize="18" />
+
+            <StackPanel
+                Grid.Row="0"
+                Name="StackPanelTitleBar"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Background="Transparent">
+
+                <Button x:Name="FocusButton" BorderThickness="0" Background="Transparent" />
+
+                <Button Name="ButtonMinimize"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="MinimizeWindow"
+                        Style="{StaticResource TitleBarButton}"
+                        Content="0" />
+                <Button Name="ButtonMaximize"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="MaximizeWindow"
+                        Style="{StaticResource TitleBarButton}"
+                        Content="1" />
+                <Button Name="ButtonClose"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="CloseWindow"
+                        Style="{StaticResource TitleBarButton}"
+                        Content="r" />
+
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

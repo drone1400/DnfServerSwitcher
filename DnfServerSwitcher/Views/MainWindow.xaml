@@ -5,23 +5,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DnfServerSwitcher"
         xmlns:viewModels="clr-namespace:DnfServerSwitcher.ViewModels"
+        xmlns:views="clr-namespace:DnfServerSwitcher.Views"
         mc:Ignorable="d"
-        Title="DNF 2011 Server Switcher" 
+        Title="DNF 2011 Server Switcher"
         Height="440" Width="800"
         MinHeight="440" MinWidth="800"
         Icon="../Resources/nuke.ico"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}">
-    <Window.Resources>
-        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="Height" Value="24"/>
-        </Style>
-        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-    </Window.Resources>
-    
+    <views:MainView>
+        <views:MainView.Resources>
+            <Style TargetType="Label"
+                   BasedOn="{StaticResource {x:Type Label}}">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+            </Style>
+            <Style TargetType="TextBox"
+                   BasedOn="{StaticResource {x:Type TextBox}}">
+                <Setter Property="Margin" Value="4" />
+                <Setter Property="Height" Value="24" />
+            </Style>
+            <Style TargetType="Button"
+                   BasedOn="{StaticResource {x:Type Button}}">
+                <Setter Property="Margin" Value="4" />
+                <Setter Property="Height" Value="24" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+        </views:MainView.Resources>
+    </views:MainView>
 </Window>
