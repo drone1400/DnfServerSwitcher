@@ -1,6 +1,10 @@
 # DnfServerSwitcher
 A simple .NET Framework application for switching server modes in Duke Nukem Forever 2011.
 
+Big thanks to Star Nukem for actually starting this project and providing the graphics!
+
+For intense Duke Nukem Forever multiplayer action, join us here: https://steamcommunity.com/groups/dnftournaments
+
 ![](.doc/ApplicationTheme.png)
 
 ## How it works
