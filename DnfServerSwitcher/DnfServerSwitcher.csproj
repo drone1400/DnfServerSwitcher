@@ -7,8 +7,8 @@
         <UseWPF>true</UseWPF>
         <Nullable>enable</Nullable>
         <LangVersion>10</LangVersion>
-        <Version>1.2.2</Version>
-        <ApplicationIcon>.\Resources\nuke.ico</ApplicationIcon>
+        <Version>1.2.3</Version>
+        <ApplicationIcon>.\Resources\nukeswitch.ico</ApplicationIcon>
     </PropertyGroup>
     
     <ItemGroup>
@@ -37,6 +37,8 @@
       <Resource Include="Resources\DNFSwitcherLogo.png" />
       <None Remove="Resources\nuke.ico" />
       <Resource Include="Resources\nuke.ico" />
+      <None Remove="Resources\nukeswitch.ico" />
+      <Resource Include="Resources\nukeswitch.ico" />
     </ItemGroup>
 
 
