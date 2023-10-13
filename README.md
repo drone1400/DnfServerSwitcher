@@ -7,6 +7,11 @@ For intense Duke Nukem Forever multiplayer action, join us here: https://steamco
 
 ![](.doc/ApplicationTheme.png)
 
+## Warning - Known issue
+
+Sometimes the steam cloud seems to mess with the system.ini file and causes the "Launch Deprecated" mode not to work...
+Currently looking into the issue. As a temporary work around, try disabling the steam cloud for Duke Nukem Forever.
+
 ## How it works
 Upon launching the first time, the application will attempt to auto locate the DukeForever.exe file and the system.ini file.
 If auto-detection fails, you can manually set the paths using the browse buttons.
