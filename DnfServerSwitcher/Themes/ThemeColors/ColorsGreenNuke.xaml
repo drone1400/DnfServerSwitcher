@@ -38,7 +38,11 @@
                       RenderingBias="Quality"
                       ShadowDepth="0"
                       Color="#9FFF68" />
-
+    <DropShadowEffect x:Key="NukedWindowShadow"
+                      BlurRadius="10"
+                      RenderingBias="Quality"
+                      ShadowDepth="4"
+                      Color="#000000"/>
 
     <SolidColorBrush x:Key="NukedBrushTitleButtonForeground">#000000</SolidColorBrush>
 

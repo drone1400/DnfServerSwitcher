@@ -325,8 +325,6 @@ namespace DnfServerSwitcher.ViewModels {
             FileInfo finfo = new FileInfo(this.Dnf2011SystemIniPath);
             if (finfo.Directory?.Parent == null) return "";
             string rcvdf = Path.Combine(finfo.Directory.Parent.FullName, "remotecache.vdf");
-            
-            Glog.Message(MyTraceCategory.General, $"Found remotecache.vdf file at path={rcvdf}");
             return rcvdf;
         }
         
@@ -338,6 +336,7 @@ namespace DnfServerSwitcher.ViewModels {
         private void DeleteRemoteCacheVdf() {
             string path = this.GetRemoteCachePath();
             if (string.IsNullOrWhiteSpace(path) || File.Exists(path) == false) return;
+            Glog.Message(MyTraceCategory.General, $"Found remotecache.vdf file at path={path}");
             File.Delete(path);
             Glog.Message(MyTraceCategory.General, $"Deleted remotecache.vdf file at path={path}");
             this._cmdDeleteRemoteCacheVdf?.RefreshCanExecute();
@@ -387,8 +386,6 @@ namespace DnfServerSwitcher.ViewModels {
             FileInfo finfo = new FileInfo(this.Dnf2011ExePath);
             if (finfo.Directory?.Parent == null) return "";
             string path = Path.Combine(finfo.Directory.Parent.FullName, "Maps");
-            
-            Glog.Message(MyTraceCategory.General, $"Found map folder at path={path}");
             return path;
         }
         
@@ -400,6 +397,7 @@ namespace DnfServerSwitcher.ViewModels {
         private void OpenDnfMap() {
             string mapFolder = this.GetMapFolder();
             if (string.IsNullOrWhiteSpace(mapFolder) || Directory.Exists(mapFolder) == false) return;
+            Glog.Message(MyTraceCategory.General, $"Found map folder at path={mapFolder}");
 
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.InitialDirectory = mapFolder;
