@@ -1,9 +1,8 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <SolidColorBrush x:Key="NukedBrushTextDark">#000000</SolidColorBrush>
+    
     <SolidColorBrush x:Key="NukedBrushTextLight">#FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushTextLightDisabled">#A0A0A0</SolidColorBrush>
-
 
     <Color x:Key="NukedColorWindowGlow">#FFFFFF</Color>
     <SolidColorBrush x:Key="NukedBrushWindowBackgroundLight">#ADADE2</SolidColorBrush>
@@ -16,13 +15,10 @@
     <SolidColorBrush x:Key="NukedBrushBackgroundDarkest">#181A3B</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushBackgroundDisabled">#3A3A4C</SolidColorBrush>
 
-    <SolidColorBrush x:Key="NukedBrushBorderGlow">#FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushBorderLight">#BFBFFF</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushBorderHighlight">#CCCCFF</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushBorderDisabled">#181A3B</SolidColorBrush>
-
-
-    <SolidColorBrush x:Key="NukedBrushControlLight">#B9BBE8</SolidColorBrush>
+    
 
     <DropShadowEffect x:Key="NukedGlowControl"
                       BlurRadius="6"

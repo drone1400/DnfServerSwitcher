@@ -1,0 +1,367 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="d">
+    <d:ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary
+            Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeColors/ColorsBlueNuke.xaml" />
+    </d:ResourceDictionary.MergedDictionaries>
+    
+
+    <!-- Scroll Viewer -->
+    <ControlTemplate x:Key="NukedTemplateScrollViewer" TargetType="{x:Type ScrollViewer}">
+        <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="Corner"
+                       Grid.Row="1"
+                       Grid.Column="1"
+                       Fill="Transparent" />
+            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                    CanContentScroll="{TemplateBinding CanContentScroll}"
+                                    CanHorizontallyScroll="False"
+                                    CanVerticallyScroll="False"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    Content="{TemplateBinding Content}"
+                                    Grid.Column="0"
+                                    Margin="{TemplateBinding Padding}"
+                                    Grid.Row="0" />
+            <ScrollBar x:Name="PART_VerticalScrollBar"
+                       AutomationProperties.AutomationId="VerticalScrollBar"
+                       Cursor="Arrow" Grid.Column="1"
+                       Maximum="{TemplateBinding ScrollableHeight}"
+                       Minimum="0"
+                       Grid.Row="0"
+                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                       Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                       ViewportSize="{TemplateBinding ViewportHeight}" />
+            <ScrollBar x:Name="PART_HorizontalScrollBar"
+                       AutomationProperties.AutomationId="HorizontalScrollBar"
+                       Cursor="Arrow"
+                       Grid.Column="0"
+                       Maximum="{TemplateBinding ScrollableWidth}"
+                       Minimum="0"
+                       Orientation="Horizontal"
+                       Grid.Row="1"
+                       Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                       Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                       ViewportSize="{TemplateBinding ViewportWidth}" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="NukedStyleScrollBarTransparentRepeatButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Focusable" Value="false" />
+        <Setter Property="IsTabStop" Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border x:Name="border"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            Background="Transparent" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Scroll Bar -->
+    <Style x:Key="NukedStyleScrollBarButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Margin" Value="1"/>
+        <Setter Property="Padding" Value="1" />
+        <Setter Property="Focusable" Value="false" />
+        <Setter Property="IsTabStop" Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Grid>
+                        <Border x:Name="border"
+                                CornerRadius="5"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{DynamicResource NukedBrushBorderLight}"
+                                Background="{DynamicResource NukedBrushBackgroundDark}"
+                                Effect="{DynamicResource NukedGlowControl}">
+                        </Border>
+                        <!-- Put content presenter over border instead of inside it so it doesn't get affected by the glow blur!-->
+                        <ContentPresenter Focusable="False"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="BorderBrush" TargetName="border"
+                                    Value="{DynamicResource NukedBrushBorderHighlight}" />
+                            <Setter Property="Effect" TargetName="border"
+                                    Value="{DynamicResource NukedGlowControlMouseOver}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="BorderBrush" TargetName="border"
+                                    Value="{DynamicResource NukedBrushBackgroundDarkest}" />
+                            <Setter Property="BorderBrush" TargetName="border"
+                                    Value="{DynamicResource NukedBrushBorderHighlight}" />
+                            <Setter Property="Effect" TargetName="border"
+                                    Value="{DynamicResource NukedGlowControlMouseOver}" />
+                        </Trigger>
+                        <DataTrigger
+                            Binding="{Binding IsEnabled, RelativeSource={RelativeSource AncestorType={x:Type ScrollBar}}}"
+                            Value="false">
+                            <Setter Property="BorderBrush" TargetName="border"
+                                    Value="{DynamicResource NukedBrushBorderDisabled}" />
+                            <Setter Property="Effect" TargetName="border"
+                                    Value="{DynamicResource NukedGlowControlDisabled}" />
+                            <Setter Property="Background"
+                                    Value="{DynamicResource NukedBrushBackgroundDisabled}" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NukedStyleScrollBarThumb" TargetType="{x:Type Thumb}">
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="IsTabStop" Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border x:Name="border"
+                            CornerRadius="5"
+                            Height="{TemplateBinding Height}"
+                            Width="{TemplateBinding Width}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{DynamicResource NukedBrushBackgroundLight}"
+                            Background="{DynamicResource NukedBrushBackgroundLight}">
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" TargetName="border"
+                                    Value="{DynamicResource NukedBrushBorderHighlight}" />
+                            <Setter Property="Effect" TargetName="border"
+                                    Value="{DynamicResource NukedGlowControlMouseOver}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="true">
+                            <Setter Property="Background" TargetName="border"
+                                    Value="{DynamicResource NukedBrushBorderHighlight}" />
+                            <Setter Property="Effect" TargetName="border"
+                                    Value="{DynamicResource NukedGlowControlMouseOver}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="NukedTemplateScrollBarVertical" TargetType="{x:Type ScrollBar}">
+        <Grid x:Name="Bg">
+            <Grid.RowDefinitions>
+                <RowDefinition
+                    MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}" />
+                <RowDefinition Height="0.00001*" />
+                <RowDefinition
+                    MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}" />
+            </Grid.RowDefinitions>
+            <Border CornerRadius="4"
+                    Margin="3,4"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Background="{TemplateBinding Background}"
+                    Effect="{DynamicResource NukedGlowControl}"
+                    Grid.Row="1" />
+            <RepeatButton Grid.Row="0" x:Name="PART_LineUpButton"
+                          Command="{x:Static ScrollBar.LineUpCommand}"
+                          IsEnabled="{TemplateBinding IsMouseOver}"
+                          Style="{DynamicResource NukedStyleScrollBarButton}">
+                <Path x:Name="ArrowUp"
+                      Data="M 0,4 C0,4 0,6 0,6 0,6 3.5,2.5 3.5,2.5 3.5,2.5 7,6 7,6 7,6 7,4 7,4 7,4 3.5,0.5 3.5,0.5 3.5,0.5 0,4 0,4 z"
+                      Fill="{DynamicResource NukedBrushBackgroundLight}"
+                      Margin="3,4,3,3"
+                      Stretch="Uniform" />
+            </RepeatButton>
+            <Track x:Name="PART_Track"
+                   Margin="1,4"
+                   IsDirectionReversed="true"
+                   IsEnabled="{TemplateBinding IsMouseOver}"
+                   Grid.Row="1">
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton
+                        Command="{x:Static ScrollBar.PageUpCommand}"
+                        Style="{DynamicResource NukedStyleScrollBarTransparentRepeatButton}" />
+                </Track.DecreaseRepeatButton>
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton
+                        Command="{x:Static ScrollBar.PageDownCommand}"
+                        Style="{DynamicResource NukedStyleScrollBarTransparentRepeatButton}" />
+                </Track.IncreaseRepeatButton>
+                <Track.Thumb>
+                    <Thumb Style="{DynamicResource NukedStyleScrollBarThumb}" />
+                </Track.Thumb>
+            </Track>
+            <RepeatButton x:Name="PART_LineDownButton"
+                          Command="{x:Static ScrollBar.LineDownCommand}"
+                          IsEnabled="{TemplateBinding IsMouseOver}"
+                          Grid.Row="2"
+                          Style="{DynamicResource NukedStyleScrollBarButton}">
+                <Path x:Name="ArrowDown"
+                      Data="M 0,2.5 C0,2.5 0,0.5 0,0.5 0,0.5 3.5,4 3.5,4 3.5,4 7,0.5 7,0.5 7,0.5 7,2.5 7,2.5 7,2.5 3.5,6 3.5,6 3.5,6 0,2.5 0,2.5 z"
+                      Fill="{DynamicResource NukedBrushBackgroundLight}"
+                      Margin="3,4,3,3" Stretch="Uniform" />
+            </RepeatButton>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsMouseOver, ElementName=PART_LineDownButton}"
+                         Value="true">
+                <Setter Property="Fill"
+                        TargetName="ArrowDown"
+                        Value="{DynamicResource NukedBrushBorderHighlight}" />
+                <Setter Property="Effect"
+                        TargetName="ArrowDown"
+                        Value="{DynamicResource NukedGlowControlMouseOver}" />
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding IsMouseOver, ElementName=PART_LineUpButton}"
+                         Value="true">
+                <Setter Property="Fill"
+                        TargetName="ArrowUp"
+                        Value="{DynamicResource NukedBrushBorderHighlight}" />
+                <Setter Property="Effect"
+                        TargetName="ArrowUp"
+                        Value="{DynamicResource NukedGlowControlMouseOver}" />
+            </DataTrigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Fill" TargetName="ArrowUp"
+                        Value="{DynamicResource NukedBrushBorderDisabled}" />
+                <Setter Property="Fill" TargetName="ArrowDown"
+                        Value="{DynamicResource NukedBrushBorderDisabled}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="NukedTemplateScrollBarHorizontal" TargetType="{x:Type ScrollBar}">
+        <Grid x:Name="Bg">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    MaxWidth="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}}" />
+                <ColumnDefinition Width="0.00001*" />
+                <ColumnDefinition
+                    MaxWidth="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}}" />
+            </Grid.ColumnDefinitions>
+            <Border CornerRadius="4"
+                    Margin="4,3"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Background="{TemplateBinding Background}"
+                    Effect="{DynamicResource NukedGlowControl}"
+                    Grid.Column="1" />
+            <RepeatButton Grid.Column="0" x:Name="PART_LineLeftButton"
+                          Command="{x:Static ScrollBar.LineLeftCommand}"
+                          IsEnabled="{TemplateBinding IsMouseOver}"
+                          Style="{DynamicResource NukedStyleScrollBarButton}">
+                <Path x:Name="ArrowDown"
+                      Data="M 3.18,7 C3.18,7 5,7 5,7 5,7 1.81,3.5 1.81,3.5 1.81,3.5 5,0 5,0 5,0 3.18,0 3.18,0 3.18,0 0,3.5 0,3.5 0,3.5 3.18,7 3.18,7 z"
+                      Fill="{DynamicResource NukedBrushBackgroundLight}"
+                      Margin="3" Stretch="Uniform" />
+            </RepeatButton>
+            <Track x:Name="PART_Track" 
+                   Grid.Column="1" 
+                   IsEnabled="{TemplateBinding IsMouseOver}"
+                   Margin="4,1">
+                <Track.DecreaseRepeatButton>
+                    <RepeatButton Command="{x:Static ScrollBar.PageLeftCommand}"
+                                  Style="{DynamicResource NukedStyleScrollBarTransparentRepeatButton}" />
+                </Track.DecreaseRepeatButton>
+                <Track.IncreaseRepeatButton>
+                    <RepeatButton Command="{x:Static ScrollBar.PageRightCommand}"
+                                  Style="{DynamicResource NukedStyleScrollBarTransparentRepeatButton}" />
+                </Track.IncreaseRepeatButton>
+                <Track.Thumb>
+                    <Thumb Style="{DynamicResource NukedStyleScrollBarThumb}" />
+                </Track.Thumb>
+            </Track>
+            <RepeatButton x:Name="PART_LineRightButton"
+                          Grid.Column="2"
+                          Command="{x:Static ScrollBar.LineRightCommand}"
+                          IsEnabled="{TemplateBinding IsMouseOver}"
+                          Style="{DynamicResource NukedStyleScrollBarButton}">
+                <Path x:Name="ArrowUp"
+                      Data="M 1.81,7 C1.81,7 0,7 0,7 0,7 3.18,3.5 3.18,3.5 3.18,3.5 0,0 0,0 0,0 1.81,0 1.81,0 1.81,0 5,3.5 5,3.5 5,3.5 1.81,7 1.81,7 z"
+                      Fill="{DynamicResource NukedBrushBackgroundLight}"
+                      Margin="3"
+                      Stretch="Uniform" />
+            </RepeatButton>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsMouseOver, ElementName=PART_LineLeftButton}"
+                         Value="true">
+                <Setter Property="Fill"
+                        TargetName="ArrowDown"
+                        Value="{DynamicResource NukedBrushBorderHighlight}" />
+                <Setter Property="Effect"
+                        TargetName="ArrowDown"
+                        Value="{DynamicResource NukedGlowControlMouseOver}" />
+            </DataTrigger>
+
+            <DataTrigger Binding="{Binding IsMouseOver, ElementName=PART_LineRightButton}"
+                         Value="true">
+                <Setter Property="Fill"
+                        TargetName="ArrowUp"
+                        Value="{DynamicResource NukedBrushBorderHighlight}" />
+                <Setter Property="Effect"
+                        TargetName="ArrowUp"
+                        Value="{DynamicResource NukedGlowControlMouseOver}" />
+            </DataTrigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Fill" TargetName="ArrowUp"
+                        Value="{DynamicResource NukedBrushBorderDisabled}" />
+                <Setter Property="Fill" TargetName="ArrowDown"
+                        Value="{DynamicResource NukedBrushBorderDisabled}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="NukedStyleScrollBar" TargetType="{x:Type ScrollBar}">
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
+        <Setter Property="Stylus.IsFlicksEnabled" Value="false" />
+        <Setter Property="Background" Value="{DynamicResource NukedBrushBackgroundDarkest}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource NukedBrushBorderLight}" />
+        <Setter Property="Foreground" Value="{DynamicResource NukedBrushTextLight}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Width" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}" />
+        <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}" />
+        <Setter Property="Template" Value="{DynamicResource NukedTemplateScrollBarVertical}" />
+
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height"
+                        Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}" />
+                <Setter Property="MinHeight"
+                        Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Template" Value="{DynamicResource NukedTemplateScrollBarHorizontal}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <Style x:Key="NukedStyleScrollViewer" TargetType="{x:Type ScrollViewer}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="Transparent"/>
+        <Setter Property="Template" Value="{DynamicResource NukedTemplateScrollViewer}"></Setter>
+    </Style>
+
+</ResourceDictionary>

@@ -12,6 +12,7 @@
         <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/Controls/Button.xaml"/>
         <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/Controls/CheckBox.xaml"/>
         <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/Controls/GroupBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/Controls/ScrollViewer.xaml"/>
         
         <!-- Window stuff -->
         <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/Controls/TitleBarButton.xaml"/>
@@ -24,4 +25,6 @@
     <Style TargetType="{x:Type Button}" BasedOn="{StaticResource NukedStyleButton}"/>
     <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource NukedStyleCheckbox}"/>
     <Style TargetType="{x:Type GroupBox}" BasedOn="{StaticResource NukedStyleGroupBox}"/>
+    <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource NukedStyleScrollBar}"/>
+    <Style TargetType="{x:Type ScrollViewer}" BasedOn="{StaticResource NukedStyleScrollViewer}"/>
 </ResourceDictionary>
