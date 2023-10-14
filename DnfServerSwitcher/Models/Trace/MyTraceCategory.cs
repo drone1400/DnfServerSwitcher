@@ -2,6 +2,7 @@
     public enum MyTraceCategory {
         Global,
         General,
+        Config,
         Command,
     }
 }

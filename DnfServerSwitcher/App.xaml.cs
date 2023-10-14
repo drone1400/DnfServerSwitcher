@@ -112,9 +112,9 @@ namespace DnfServerSwitcher {
                     this._logWindow = new LogWindow();
                 }
                 this._logWindow.Show();
-                Glog.Message(MyTraceCategory.General,"Log Window Initialized...");
+                Glog.Message(MyTraceCategory.Config,"Log Window Initialized...");
                 
-                Glog.Message(MyTraceCategory.General,new List<string>() {
+                Glog.Message(MyTraceCategory.Config,new List<string>() {
                     "--- Current configuration settings ---",
                     "Dnf2011SystemIniPath="+ this._myCfg.Dnf2011SystemIniPath,
                     "Dnf2011ExePath="+ this._myCfg.Dnf2011ExePath,

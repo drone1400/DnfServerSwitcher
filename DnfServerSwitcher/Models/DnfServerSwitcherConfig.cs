@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using DnfServerSwitcher.Models.KrazyIni;
@@ -8,16 +11,58 @@ using DnfServerSwitcher.Models.KrazyIni.Raw;
 using DnfServerSwitcher.Models.Trace;
 
 namespace DnfServerSwitcher.Models {
-    public class DnfServerSwitcherConfig {
+    public class DnfServerSwitcherConfig : INotifyPropertyChanged{
+        
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null) {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            Glog.Message(MyTraceCategory.Config, $"Config changed: {propertyName}={value}");
+            this.OnPropertyChanged(propertyName);
+            return true;
+        }
+        
+        
         public const string INI_FILE_NAME = "DnfServerSwitcher.ini";
-        public string Dnf2011ExePath { get; set; } = "";
-        public string Dnf2011ExeCommandLineArgs { get; set; } = "";
-        public string Dnf2011SystemIniPath { get; set; } = "";
+        
+        
+        public string Dnf2011ExePath {
+            get => this._dnf2011ExePath;
+            set => this.SetField(ref this._dnf2011ExePath, value);
+        }
+        private string _dnf2011ExePath = ""; 
+        
+        public string Dnf2011ExeCommandLineArgs { 
+            get => this._dnf2011ExeCommandLineArgs;
+            set => this.SetField(ref this._dnf2011ExeCommandLineArgs, value);
+        }
+        private string _dnf2011ExeCommandLineArgs = "";
+        
+        public string Dnf2011SystemIniPath { 
+            get => this._dnf2011SystemIniPath;
+            set => this.SetField(ref this._dnf2011SystemIniPath, value);
+        }
+        private string _dnf2011SystemIniPath = "";
 
-        public bool EnableSystemIniSteamCloudSync { get; set; } = true;
-        public bool OpenLogWindowOnStartup { get; set; } = true;
+        public bool EnableSystemIniSteamCloudSync { 
+            get => this._enableSystemIniSteamCloudSync;
+            set => this.SetField(ref this._enableSystemIniSteamCloudSync, value);
+        }
+        private bool _enableSystemIniSteamCloudSync = false;
+        public bool OpenLogWindowOnStartup { 
+            get => this._openLogWindowOnStartup;
+            set => this.SetField(ref this._openLogWindowOnStartup, value);
+        }
+        private bool _openLogWindowOnStartup = false;
 
-        public string Theme { get; set; } = MyThemes.DookieNookie2001.ToString();
+        public string Theme { 
+            get => this._theme;
+            set => this.SetField(ref this._theme, value);
+        }
+        private string _theme = MyThemes.DookieNookie2001.ToString();
 
         public void SaveToIni() {
             try {
@@ -31,6 +76,7 @@ namespace DnfServerSwitcher.Models {
 
                 string iniPath = Path.Combine(((App)Application.Current).AppBaseDirectory, INI_FILE_NAME);
                 data.WriteToFile(iniPath, Encoding.UTF8);
+                Glog.Message(MyTraceCategory.Config, $"Done writing config file to path={iniPath}");
             } catch (Exception ex) {
                 Glog.Error(MyTraceCategory.General, "This is awkward, an error has occured trying to save the app config ini...", ex);
             }
@@ -65,6 +111,8 @@ namespace DnfServerSwitcher.Models {
                     } else {
                         this.Theme = MyThemes.Default.ToString();
                     }
+                    
+                    Glog.Message(MyTraceCategory.Config, $"Done reading config file from path={iniPath}");
                 } catch (Exception) {
                     this.Dnf2011ExePath = "";
                     this.Dnf2011SystemIniPath = "";
