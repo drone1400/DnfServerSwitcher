@@ -1,0 +1,31 @@
+<Window x:Class="DnfServerSwitcher.Views.Windows.TroubleshootingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:DnfServerSwitcher.Views.Windows"
+        xmlns:viewModels="clr-namespace:DnfServerSwitcher.ViewModels"
+        xmlns:views="clr-namespace:DnfServerSwitcher.Views"
+        mc:Ignorable="d"
+        Title="DNF 2011 Server Switcher - Troubleshooting"
+        Height="480" Width="640"
+        MinHeight="480" MinWidth="640"
+        MaxHeight="480" MaxWidth="640"
+        Icon="../../Resources/nukeswitch.ico"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <views:Troubleshooting Grid.Row="0" />
+        
+        <Button Grid.Row="2" 
+                Margin="16"
+                Width="220" Height="32"
+                Content="OK"
+                Click="ButtonBase_OnClick"/>
+    </Grid>
+</Window>

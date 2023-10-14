@@ -39,6 +39,19 @@ namespace DnfServerSwitcher.ViewModels {
                     this.OnPropertyChanged();
                     this._cmdLaunchNormal?.RefreshCanExecute();
                     this._cmdLaunchDeprecated?.RefreshCanExecute();
+                    this._cmdQuickOpenMap?.RefreshCanExecute();
+                }
+            }
+        }
+        
+        public string Dnf2011ExeCommandLineArgs {
+            get => this._myCfg.Dnf2011ExeCommandLineArgs;
+            set {
+                if (this._myCfg.Dnf2011ExeCommandLineArgs != value) {
+                    this._myCfg.Dnf2011ExeCommandLineArgs = value;
+                    this.OnPropertyChanged();
+                    //this._cmdLaunchNormal?.RefreshCanExecute();
+                    //this._cmdLaunchDeprecated?.RefreshCanExecute();
                 }
             }
         }
@@ -51,6 +64,7 @@ namespace DnfServerSwitcher.ViewModels {
                     this.OnPropertyChanged();
                     this._cmdLaunchNormal?.RefreshCanExecute();
                     this._cmdLaunchDeprecated?.RefreshCanExecute();
+                    this._cmdDeleteRemoteCacheVdf?.RefreshCanExecute();
                 }
             }
         }
@@ -66,17 +80,23 @@ namespace DnfServerSwitcher.ViewModels {
 
         public ICommand CmdBrowseSystemIni => this._cmdBrowseSystemIni ??= new MuhCommand(this.BrowseDnf2011SystemIni, () => true);
         private MuhCommand? _cmdBrowseSystemIni;
-
         
-        private MyTraceListenerLogger _logger;
+        public ICommand CmdShowTroubleshootingInfo => this._cmdShowTroubleshootingInfo ??= new MuhCommand(this.ShowTroubleshootingInfoWindow, () => true);
+        private MuhCommand? _cmdShowTroubleshootingInfo;
+        
+        public ICommand CmdDeleteRemoteCacheVdf => this._cmdDeleteRemoteCacheVdf ??= new MuhCommand(this.DeleteRemoteCacheVdf, this.CanDeleteRemoteCacheVdf);
+        private MuhCommand? _cmdDeleteRemoteCacheVdf;
+        
+        public ICommand CmdOpenDnfMapsWebsite => this._cmdOpenDnfMapsWebsite ??= new MuhCommand(this.OpenDnfMapWebsite, () => true);
+        private MuhCommand? _cmdOpenDnfMapsWebsite;
+        
+        public ICommand CmdQuickPlayMap => this._cmdQuickOpenMap ??= new MuhCommand(this.OpenDnfMap, this.CanOpenDnfMap);
+        private MuhCommand? _cmdQuickOpenMap;
+
         
         public MainViewModel() {
 
-            this._logger = new MyTraceListenerLogger(LocationHelper.AppBaseDirectory, "DnfSS_ErrorLog", false) {
-                FlushAfterEachMessage = true,
-                MaxTraceLevel = MyTraceLevel.Error,
-            };
-            MyTrace.Global.Listeners.Add(this._logger);
+
             
             this.Initialize();
         }
@@ -164,7 +184,7 @@ namespace DnfServerSwitcher.ViewModels {
                 }
             }
 
-            Process.Start(this.Dnf2011ExePath);
+            Process.Start(this.Dnf2011ExePath, this.Dnf2011ExeCommandLineArgs);
         }
 
         private static string GetSha256(string filePath) {
@@ -234,8 +254,28 @@ namespace DnfServerSwitcher.ViewModels {
 
             this.TryCopyDeprecatedFiles(true);
 
-            Process.Start(this.Dnf2011ExePath);
+            Process.Start(this.Dnf2011ExePath, this.Dnf2011ExeCommandLineArgs);
 
+        }
+
+        public string GetRemoteCachePath() {
+            if (File.Exists(this.Dnf2011SystemIniPath) == false) return "";
+            FileInfo finfo = new FileInfo(this.Dnf2011SystemIniPath);
+            if (finfo.Directory?.Parent == null) return "";
+            string rcvdf = Path.Combine(finfo.Directory.Parent.FullName, "remotecache.vdf");
+            return rcvdf;
+        }
+        
+        public bool CanDeleteRemoteCacheVdf() {
+            string path = this.GetRemoteCachePath();
+            return string.IsNullOrWhiteSpace(path) == false && File.Exists(path);
+        }
+
+        private void DeleteRemoteCacheVdf() {
+            string path = this.GetRemoteCachePath();
+            if (string.IsNullOrWhiteSpace(path) || File.Exists(path) == false) return;
+            File.Delete(path);
+            this._cmdDeleteRemoteCacheVdf?.RefreshCanExecute();
         }
 
         private void BrowseDnf2011Exe() {
@@ -266,5 +306,42 @@ namespace DnfServerSwitcher.ViewModels {
             }
         }
 
+        private void ShowTroubleshootingInfoWindow() {
+            if (Application.Current is App app) {
+                app.ShowTroubleshootingWindow();
+            }
+        }
+        
+        private void OpenDnfMapWebsite() {
+            Uri dnfmaps = new Uri(@"https://dnfmaps.com/dnf-2011/", UriKind.Absolute);
+            Process.Start(dnfmaps.AbsoluteUri);
+        }
+
+        public string GetMapFolder() {
+            if (File.Exists(this.Dnf2011ExePath) == false) return "";
+            FileInfo finfo = new FileInfo(this.Dnf2011ExePath);
+            if (finfo.Directory?.Parent == null) return "";
+            string rcvdf = Path.Combine(finfo.Directory.Parent.FullName, "Maps");
+            return rcvdf;
+        }
+        
+        private bool CanOpenDnfMap() {
+            string mapFolder = this.GetMapFolder();
+            return string.IsNullOrWhiteSpace(mapFolder) == false && Directory.Exists(mapFolder);
+        }
+        
+        private void OpenDnfMap() {
+            string mapFolder = this.GetMapFolder();
+            if (string.IsNullOrWhiteSpace(mapFolder) || Directory.Exists(mapFolder) == false) return;
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.InitialDirectory = mapFolder;
+            ofd.Filter = "DNF map file|*.dnf";
+            if (ofd.ShowDialog() == true) {
+                FileInfo finfo = new FileInfo(ofd.FileName);
+                string mapName = Path.GetFileNameWithoutExtension(finfo.Name);
+                Process.Start(this.Dnf2011ExePath, mapName);
+            }
+        }
     }
 }
