@@ -1,0 +1,4 @@
+[submodule "FacepunchSteamworks"]
+	path = FacepunchSteamworks
+	url = https://github.com/Facepunch/Facepunch.Steamworks.git
+	branch = steamworks157
