@@ -126,6 +126,8 @@ namespace DnfServerSwitcher {
                 });
             }
             
+            Glog.Message(MyTraceCategory.General,"Initializing main window...");
+            
             this._mainVm = new MainViewModel();
             this._mainVm.InitializeConfig(this._myCfg);
             
@@ -142,6 +144,8 @@ namespace DnfServerSwitcher {
             base.OnStartup(e);
         }
         private void MainWindowOnClosed(object sender, EventArgs e) {
+            Glog.Message(MyTraceCategory.General,"Main window closed! Application shutting down...");
+            
             this._mainVm?.MyCfg.SaveToIni();
             this._fileLogger.Flush();
             this._fileLogger.Close();

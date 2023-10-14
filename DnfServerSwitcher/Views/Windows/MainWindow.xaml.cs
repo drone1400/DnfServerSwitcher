@@ -1,6 +1,5 @@
 ﻿using System.Windows;
-using DnfServerSwitcher.ViewModels;
-namespace DnfServerSwitcher.Views {
+namespace DnfServerSwitcher.Views.Windows {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>

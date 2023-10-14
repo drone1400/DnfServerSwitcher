@@ -1,6 +1,5 @@
-using System.Windows;
 using DnfServerSwitcher.Themes;
-namespace DnfServerSwitcher.Views {
+namespace DnfServerSwitcher.Views.NukedWindows {
     public partial class NukedMainWindow : NukedWindow {
         public NukedMainWindow() {
             InitializeComponent();
