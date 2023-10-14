@@ -16,7 +16,7 @@ namespace DnfServerSwitcher {
     /// </summary>
     public partial class App : Application {
 
-        private DookieNookieWindow _dookieWindow;
+        private NukedMainWindow _dookieWindow;
         private MainWindow? _normalWindow;
         private MainViewModel? _mainVm;
         
@@ -40,7 +40,7 @@ namespace DnfServerSwitcher {
         protected override void OnStartup(StartupEventArgs e) {
             this._mainVm = new MainViewModel();
             if (this._mainVm.MyCfg.Theme == MyThemes.DookieNookie2001.ToString()) {
-                this._dookieWindow = new DookieNookieWindow();
+                this._dookieWindow = new NukedMainWindow();
                 this._dookieWindow.DataContext = this._mainVm;
                 this._dookieWindow.Show();
                 this._dookieWindow.Closed += this.NormalWindowOnClosed;

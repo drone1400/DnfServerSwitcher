@@ -1,0 +1,98 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="NukedBrushTextDark">#000000</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushTextLight">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushTextLightDisabled">#A0A0A0</SolidColorBrush>
+
+
+    <Color x:Key="NukedColorWindowGlow">#FFFFFF</Color>
+    <SolidColorBrush x:Key="NukedBrushWindowBackgroundLight">#76E08A</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushWindowBackgroundDark">#397F2B</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushWindowBackgroundDarkest">#1D3A18</SolidColorBrush>
+
+    <SolidColorBrush x:Key="NukedBrushBackgroundLight">#BAE0AC</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushBackgroundMedium">#4C7F39</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushBackgroundDark">#346B2F</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushBackgroundDarkest">#243A18</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushBackgroundDisabled">#3B4938</SolidColorBrush>
+
+    <SolidColorBrush x:Key="NukedBrushBorderGlow">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushBorderLight">#D6FFBF</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushBorderHighlight">#CEFFCE</SolidColorBrush>
+    <SolidColorBrush x:Key="NukedBrushBorderDisabled">#213A18</SolidColorBrush>
+
+
+    <SolidColorBrush x:Key="NukedBrushControlLight">#BFE5B7</SolidColorBrush>
+
+    <DropShadowEffect x:Key="NukedGlowControl"
+                      BlurRadius="6"
+                      Direction="-90"
+                      RenderingBias="Quality"
+                      ShadowDepth="0"
+                      Color="#68FF84" />
+    <DropShadowEffect x:Key="NukedGlowControlMouseOver"
+                      BlurRadius="12"
+                      Direction="-90"
+                      RenderingBias="Quality"
+                      ShadowDepth="0"
+                      Color="#ADFFAD" />
+    <DropShadowEffect x:Key="NukedGlowControlDisabled"
+                      BlurRadius="0"
+                      Direction="-90"
+                      RenderingBias="Quality"
+                      ShadowDepth="0"
+                      Color="#9FFF68" />
+
+
+    <SolidColorBrush x:Key="NukedBrushTitleButtonForeground">#000000</SolidColorBrush>
+
+    <RadialGradientBrush x:Key="NukedBrushTitleButtonBackground"
+                         GradientOrigin="0.5,0.5"
+                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <RadialGradientBrush.GradientStops>
+            <GradientStop Color="#AEE5AE" Offset="0" />
+            <GradientStop Color="#9ED1A3" Offset="0.8" />
+            <GradientStop Color="#798E6C" Offset="1" />
+        </RadialGradientBrush.GradientStops>
+    </RadialGradientBrush>
+
+    <RadialGradientBrush
+        x:Key="NukedBrushTitleButtonBackgroundMouseOver"
+        GradientOrigin="0.5,0.5"
+        Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <RadialGradientBrush.GradientStops>
+            <GradientStop Color="#A3D19E" Offset="0" />
+            <GradientStop Color="#6F8E6C" Offset="0.8" />
+            <GradientStop Color="#51704E" Offset="1" />
+        </RadialGradientBrush.GradientStops>
+    </RadialGradientBrush>
+
+    <RadialGradientBrush x:Key="NukedBrushTitleButtonBackgroundPressed"
+                         GradientOrigin="0.5,0.5"
+                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <RadialGradientBrush.GradientStops>
+            <GradientStop Color="#AEE5B3" Offset="0" />
+            <GradientStop Color="#B7E5AE" Offset="0.6" />
+            <GradientStop Color="#51704E" Offset="1" />
+        </RadialGradientBrush.GradientStops>
+    </RadialGradientBrush>
+
+    <RadialGradientBrush x:Key="NukedBrushTitleButtonBackgroundDisabled"
+                         GradientOrigin="0.5,0.5"
+                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <RadialGradientBrush.GradientStops>
+            <GradientStop Color="#728E6C" Offset="0" />
+            <GradientStop Color="#728E6C" Offset="0.8" />
+            <GradientStop Color="#728E6C" Offset="1" />
+        </RadialGradientBrush.GradientStops>
+    </RadialGradientBrush>
+
+    <RadialGradientBrush x:Key="NukedBrushTitleButtonBorderBrush"
+                         GradientOrigin="0.5,0.5"
+                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <RadialGradientBrush.GradientStops>
+            <GradientStop Color="#6C8E6C" Offset="0" />
+            <GradientStop Color="#47543F" Offset="1" />
+        </RadialGradientBrush.GradientStops>
+    </RadialGradientBrush>
+</ResourceDictionary>
