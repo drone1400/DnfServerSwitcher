@@ -60,6 +60,10 @@
       <None Remove="Resources\nukeswitch.ico" />
       <Resource Include="Resources\nukeswitch.ico" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
+    </ItemGroup>
 
 
 

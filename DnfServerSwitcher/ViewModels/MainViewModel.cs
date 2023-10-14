@@ -30,6 +30,15 @@ namespace DnfServerSwitcher.ViewModels {
 
         public DnfServerSwitcherConfig MyCfg { get => this._myCfg; }
         private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
+        
+        public bool EnableSystemIniSteamCloudSync {
+            get => this._myCfg.EnableSystemIniSteamCloudSync;
+            set {
+                if (this._myCfg.EnableSystemIniSteamCloudSync != value) {
+                    this._myCfg.EnableSystemIniSteamCloudSync = value;
+                }
+            }
+        }
 
         public string Dnf2011ExePath {
             get => this._myCfg.Dnf2011ExePath;
@@ -94,40 +103,18 @@ namespace DnfServerSwitcher.ViewModels {
         private MuhCommand? _cmdQuickOpenMap;
 
         
-        public MainViewModel() {
+        public MainViewModel() {}
 
-
-            
-            this.Initialize();
-        }
-
-        private void Initialize() {
-            if (!this._myCfg.LoadFromIni() ||
-                string.IsNullOrWhiteSpace(this._myCfg.Dnf2011ExePath) ||
-                string.IsNullOrWhiteSpace(this._myCfg.Dnf2011SystemIniPath)) {
-                // could not load config file.. try to auto detect paths!
-                Dnf2011Finder df = new Dnf2011Finder();
-                df.FindPaths();
-                
-                if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) ||
-                    df.Dnf2011SystemIni.Count == 0) {
-                    MessageBox.Show("Could not locate DNF files, please manually set the correct paths for the Duke Nukem Forever exe and the System.ini file!", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-
-                if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) == false) {
-                    this._myCfg.Dnf2011ExePath = df.Dnf2011Exe;
-                }
-                if (df.Dnf2011SystemIni.Count > 0) {
-                    if (df.Dnf2011SystemIni.Count > 1) {
-                        MessageBox.Show("Multiple Steam users with different System.ini files detected! Defaulting to first user... Please manually select the correct System.ini file if you are using a different user...", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
-                    // TODO... give some user prompt to select what user's data to use?...
-                    // for now just default to first value i guess...
-                    this._myCfg.Dnf2011SystemIniPath = df.Dnf2011SystemIni.First().Value;
-                }
-                
-                this._myCfg.SaveToIni();
-            }
+        public void InitializeConfig(DnfServerSwitcherConfig cfg) {
+            this._myCfg = cfg;
+            this._cmdLaunchNormal?.RefreshCanExecute();
+            this._cmdLaunchDeprecated?.RefreshCanExecute();
+            this._cmdBrowseExe?.RefreshCanExecute();
+            this._cmdBrowseSystemIni?.RefreshCanExecute();
+            this._cmdShowTroubleshootingInfo?.RefreshCanExecute();
+            this._cmdDeleteRemoteCacheVdf?.RefreshCanExecute();
+            this._cmdOpenDnfMapsWebsite?.RefreshCanExecute();
+            this._cmdQuickOpenMap?.RefreshCanExecute();
         }
 
         private bool CanLaunch() {

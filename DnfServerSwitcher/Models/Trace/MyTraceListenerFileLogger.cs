@@ -1,26 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
 namespace DnfServerSwitcher.Models.Trace {
-    public class MyTraceListenerLogger : MyTraceListener, INotifyPropertyChanged {
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void FirePropertyChanged([CallerMemberName] string? name = null) {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
+    public class MyTraceListenerFileLogger : MyTraceListenerBase {
         public bool FlushAfterEachMessage { get; set; } = false;
         public MyTraceLevel MaxTraceLevel { get; set; } = MyTraceLevel.Error;
-        public bool PeriodicAutoFlush { get; private set; } = false;
-        public string LogFolder { get; private set; } = "";
+        public bool PeriodicAutoFlush { get; }
+        public string LogFolder { get; }
 
         private FileStream? _logStream = null;
         private StreamWriter? _streamWriter = null;
 
-        public MyTraceListenerLogger(string logFolder, string name, bool autoFlush = false) : base(name) {
+        public MyTraceListenerFileLogger(string logFolder, string name, bool autoFlush = false) : base(name) {
             this.PeriodicAutoFlush = autoFlush;
             this.LogFolder = logFolder;
             

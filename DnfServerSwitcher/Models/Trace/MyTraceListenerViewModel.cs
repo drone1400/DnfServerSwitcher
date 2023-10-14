@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 namespace DnfServerSwitcher.Models.Trace {
-    public class MyTraceListenerGui : MyTraceListener, INotifyPropertyChanged {
+    public class MyTraceListenerViewModel : MyTraceListenerBase, INotifyPropertyChanged {
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void FirePropertyChanged([CallerMemberName] string? name = null) {
@@ -19,7 +19,7 @@ namespace DnfServerSwitcher.Models.Trace {
         private bool _notifyThreadStop = false;
         private bool _notifyThreadHasChanges = false;
 
-        public MyTraceListenerGui(string name) : base(name) {
+        public MyTraceListenerViewModel(string name) : base(name) {
             Thread notifyThread = new Thread(this.NotifyThreadLoop) {
                 Name = "MyTraceListenerGui - Notify Thread",
             };

@@ -11,6 +11,7 @@ using DnfServerSwitcher.Models;
 using DnfServerSwitcher.Models.Trace;
 using DnfServerSwitcher.ViewModels;
 using DnfServerSwitcher.Views;
+using DnfServerSwitcher.Views.NukedWindows;
 using DnfServerSwitcher.Views.Windows;
 
 namespace DnfServerSwitcher {
@@ -19,15 +20,17 @@ namespace DnfServerSwitcher {
     /// </summary>
     public partial class App : Application {
 
+        public const int DNF2011_STEAMAPPID = 57900;
+
         public string AppBaseDirectory { get; } = AppDomain.CurrentDomain.BaseDirectory;
         
 
-        private NukedMainWindow? _normalWindowNuked;
-        private MainWindow? _normalWindow;
-        
-        private MainViewModel? _mainVm;
-        private MyTraceListenerLogger _logger;
+        private Window? _mainWindow;
+        private Window? _logWindow;
 
+        private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
+        private MainViewModel? _mainVm;
+        private MyTraceListenerFileLogger _fileLogger;
         
         
         public App() {
@@ -47,14 +50,45 @@ namespace DnfServerSwitcher {
                 }
             }
             
-            this._logger = new MyTraceListenerLogger(this.AppBaseDirectory, "DnfSS_ErrorLog", false) {
+            this._fileLogger = new MyTraceListenerFileLogger(this.AppBaseDirectory, "DnfSS_ErrorLog", false) {
                 FlushAfterEachMessage = true,
                 MaxTraceLevel = MyTraceLevel.Error,
             };
             
-            MyTrace.Global.Listeners.Add(this._logger);
+            MyTrace.Global.AddListener(this._fileLogger);
+            
+            this.InitializeConfig();
             
             AppDomain.CurrentDomain.UnhandledException += this.UnhandledExceptionHandler;
+        }
+
+        private void InitializeConfig() {
+            if (!this._myCfg.LoadFromIni() ||
+                string.IsNullOrWhiteSpace(this._myCfg.Dnf2011ExePath) ||
+                string.IsNullOrWhiteSpace(this._myCfg.Dnf2011SystemIniPath)) {
+                // could not load config file.. try to auto detect paths!
+                Dnf2011Finder df = new Dnf2011Finder();
+                df.FindPaths();
+                
+                if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) ||
+                    df.Dnf2011SystemIni.Count == 0) {
+                    MessageBox.Show("Could not locate DNF files, please manually set the correct paths for the Duke Nukem Forever exe and the System.ini file!", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) == false) {
+                    this._myCfg.Dnf2011ExePath = df.Dnf2011Exe;
+                }
+                if (df.Dnf2011SystemIni.Count > 0) {
+                    if (df.Dnf2011SystemIni.Count > 1) {
+                        MessageBox.Show("Multiple Steam users with different System.ini files detected! Defaulting to first user... Please manually select the correct System.ini file if you are using a different user...", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                    // TODO... give some user prompt to select what user's data to use?...
+                    // for now just default to first value i guess...
+                    this._myCfg.Dnf2011SystemIniPath = df.Dnf2011SystemIni.First().Value;
+                }
+                
+                this._myCfg.SaveToIni();
+            }
         }
         
         private void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e) {
@@ -71,27 +105,47 @@ namespace DnfServerSwitcher {
         }
         
         protected override void OnStartup(StartupEventArgs e) {
-            this._mainVm = new MainViewModel();
-            if (this._mainVm.MyCfg.Theme == MyThemes.DookieNookie2001.ToString()) {
-                this._normalWindowNuked = new NukedMainWindow();
-                this._normalWindowNuked.DataContext = this._mainVm;
-                this._normalWindowNuked.Show();
-                this._normalWindowNuked.Closed += this.NormalWindowNukedOnClosed;
-            } else {
-                this._normalWindow = new MainWindow();
-                this._normalWindow.DataContext = this._mainVm;
-                this._normalWindow.Show();
-                this._normalWindow.Closed += this.NormalWindowNukedOnClosed;
+            if (this._myCfg.OpenLogWindowOnStartup) {
+                if (this._myCfg.Theme == MyThemes.DookieNookie2001.ToString()) {
+                    this._logWindow = new NukedLogWindow();
+                } else {
+                    this._logWindow = new LogWindow();
+                }
+                this._logWindow.Show();
+                Glog.Message(MyTraceCategory.General,"Log Window Initialized...");
+                
+                Glog.Message(MyTraceCategory.General,new List<string>() {
+                    "--- Current configuration settings ---",
+                    "Dnf2011SystemIniPath="+ this._myCfg.Dnf2011SystemIniPath,
+                    "Dnf2011ExePath="+ this._myCfg.Dnf2011ExePath,
+                    "Dnf2011ExeCommandLineArgs="+ this._myCfg.Dnf2011ExeCommandLineArgs,
+                    "EnableSystemIniSteamCloudSync="+ this._myCfg.EnableSystemIniSteamCloudSync,
+                    "OpenLogWindowOnStartup="+ this._myCfg.OpenLogWindowOnStartup,
+                    "Theme="+ this._myCfg.Theme,
+                    "--- End of current configuration settings ---",
+                });
             }
             
+            this._mainVm = new MainViewModel();
+            this._mainVm.InitializeConfig(this._myCfg);
             
+            if (this._myCfg.Theme == MyThemes.DookieNookie2001.ToString()) {
+                this._mainWindow = new NukedMainWindow();
+            } else {
+                this._mainWindow = new MainWindow();
+            }
+            
+            this._mainWindow.DataContext = this._mainVm;
+            this._mainWindow.Show();
+            this._mainWindow.Closed += this.MainWindowOnClosed;
             
             base.OnStartup(e);
         }
-        private void NormalWindowNukedOnClosed(object sender, EventArgs e) {
+        private void MainWindowOnClosed(object sender, EventArgs e) {
             this._mainVm?.MyCfg.SaveToIni();
-            this._logger.Flush();
-            this._logger.Close();
+            this._fileLogger.Flush();
+            this._fileLogger.Close();
+            this._logWindow?.Close();
             App.Current.Shutdown();
         }
 

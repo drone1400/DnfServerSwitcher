@@ -9,61 +9,88 @@ namespace DnfServerSwitcher.Models.Trace {
         public static readonly string TimestampFormat = "HH:mm:ss.ffffff: ";
         public static readonly string FileTimestamp = "yyyy-MM-dd_HH-mm-ss";
 
-        public List<MyTraceListener> Listeners { get; } = new List<MyTraceListener>();
+        private List<IMyTraceListener> _listeners = new List<IMyTraceListener>();
+        private readonly object _syncRoot = new object();
 
         public string Name { get; private set; }
 
         public MyTrace(string name) {
             this.Name = name;
+        }
 
+        public void AddListener(IMyTraceListener listener) {
+            lock (this._syncRoot) {
+                if (this._listeners.Contains(listener) == false) {
+                    this._listeners.Add(listener);
+                }
+            }
+        }
+
+        public void RemoveListener(IMyTraceListener listener) {
+            lock (this._syncRoot) {
+                if (this._listeners.Contains(listener)) {
+                    this._listeners.Remove(listener);
+                }
+            }
         }
 
         public void Close() {
-            foreach (MyTraceListener listener in this.Listeners) {
-                listener.Close();
+            lock (this._syncRoot) {
+                foreach (IMyTraceListener listener in this._listeners) {
+                    listener.Close();
+                }
+                this._listeners.Clear();
             }
-
-            this.Listeners.Clear();
         }
 
         public void Flush() {
-            foreach (MyTraceListener listener in this.Listeners) {
-                listener.Flush();
+            lock (this._syncRoot) {
+                foreach (IMyTraceListener listener in this._listeners) {
+                    listener.Flush();
+                }
             }
         }
 
         public void WriteMessage(MyTraceCategory category, string message, MyTraceLevel level = MyTraceLevel.Information) {
             DateTime now = DateTime.Now;
-            foreach (MyTraceListener listener in this.Listeners) {
-                if (!listener.IsClosed && listener.Levels.HasFlag(level)) {
-                    listener.WriteMessage(now, category.ToString(), message, level);
+            lock (this._syncRoot) {
+                foreach (IMyTraceListener listener in this._listeners) {
+                    if (!listener.IsClosed && listener.Levels.HasFlag(level)) {
+                        listener.WriteMessage(now, category.ToString(), message, level);
+                    }
                 }
             }
         }
 
         public void WriteMessage(string category, string message, MyTraceLevel level = MyTraceLevel.Information) {
             DateTime now = DateTime.Now;
-            foreach (MyTraceListener listener in this.Listeners) {
-                if (!listener.IsClosed && listener.Levels.HasFlag(level)) {
-                    listener.WriteMessage(now, category, message, level);
+            lock (this._syncRoot) {
+                foreach (IMyTraceListener listener in this._listeners) {
+                    if (!listener.IsClosed && listener.Levels.HasFlag(level)) {
+                        listener.WriteMessage(now, category, message, level);
+                    }
                 }
             }
         }
 
         public void WriteMessage(MyTraceCategory category, List<string> messages, MyTraceLevel level = MyTraceLevel.Information) {
             DateTime now = DateTime.Now;
-            foreach (MyTraceListener listener in this.Listeners) {
-                if (!listener.IsClosed && listener.Levels.HasFlag(level)) {
-                    listener.WriteMessage(now, category.ToString(), messages, level);
+            lock (this._syncRoot) {
+                foreach (IMyTraceListener listener in this._listeners) {
+                    if (!listener.IsClosed && listener.Levels.HasFlag(level)) {
+                        listener.WriteMessage(now, category.ToString(), messages, level);
+                    }
                 }
             }
         }
 
         public void WriteMessage(string category, List<string> messages, MyTraceLevel level = MyTraceLevel.Information) {
             DateTime now = DateTime.Now;
-            foreach (MyTraceListener listener in this.Listeners) {
-                if (!listener.IsClosed && listener.Levels.HasFlag(level)) {
-                    listener.WriteMessage(now, category, messages, level);
+            lock (this._syncRoot) {
+                foreach (IMyTraceListener listener in this._listeners) {
+                    if (!listener.IsClosed && listener.Levels.HasFlag(level)) {
+                        listener.WriteMessage(now, category, messages, level);
+                    }
                 }
             }
         }

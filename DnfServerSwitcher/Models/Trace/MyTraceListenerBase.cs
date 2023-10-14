@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 namespace DnfServerSwitcher.Models.Trace {
-    public abstract class MyTraceListener {
+    public abstract class MyTraceListenerBase : IMyTraceListener {
 
         public string Name { get; private set; }
 
@@ -17,7 +17,7 @@ namespace DnfServerSwitcher.Models.Trace {
         private object _closedLock = new object();
 
 
-        public MyTraceListener(string  name) {
+        public MyTraceListenerBase(string  name) {
             this.Name = name;
         }
 
