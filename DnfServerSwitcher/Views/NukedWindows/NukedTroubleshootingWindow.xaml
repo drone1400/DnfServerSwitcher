@@ -12,11 +12,7 @@
         MinHeight="480" MinWidth="640"
         MaxHeight="480" MaxWidth="640"
         Icon="../../Resources/nukeswitch.ico"
-        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
-        Style="{DynamicResource NukedStyleWindow}">
-    <themes:NukedWindow.Resources>
-        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/Styles.xaml" />
-    </themes:NukedWindow.Resources>
+        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

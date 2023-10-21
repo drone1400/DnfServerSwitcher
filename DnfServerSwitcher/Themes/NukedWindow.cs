@@ -88,10 +88,18 @@ namespace DnfServerSwitcher.Themes {
         private Button? part_minimizeButton = null;
         private Button? part_maximizeButton = null;
         private Button? part_closeButton = null;
+
+        private const string _StylesSource = "pack://application:,,,/DnfServerSwitcher;component/Themes/Styles.xaml";
         
         public NukedWindow() {
             this.StateChanged += this.OnStateChanged;
             this.SizeChanged += this.OnSizeChanged;
+
+            ResourceDictionary rd = new ResourceDictionary() {
+                Source = new Uri(NukedWindow._StylesSource, UriKind.Absolute),
+            };
+            this.Resources.MergedDictionaries.Add(rd);
+            this.SetResourceReference(NukedWindow.StyleProperty, "NukedStyleWindow");
         }
         
         public override void OnApplyTemplate() {

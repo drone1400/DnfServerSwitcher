@@ -11,11 +11,7 @@
              Title="DNF 2011 Server Switcher - Log"
              Height="600" Width="800"
              MinHeight="600" MinWidth="800"
-             Icon="../../Resources/nukeswitch.ico"
-             Style="{DynamicResource NukedStyleWindow}">
-    <themes:NukedWindow.Resources>
-        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/Styles.xaml" />
-    </themes:NukedWindow.Resources>
+             Icon="../../Resources/nukeswitch.ico">
     <Grid>
         <views:GlobalLogView x:Name="TheLogView"/>
     </Grid>
