@@ -117,7 +117,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Useful Tools"
+            <GroupBox Grid.Column="0" Header="Custom Maps"
                       Margin="4">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -141,7 +141,13 @@
                             Content="Launch Custom Map!"
                             Command="{Binding CmdQuickPlayMap}" />
 
-
+                    <ComboBox Grid.Row="2" Grid.Column="0" 
+                              Width="220" Height="24"
+                              Margin="8"
+                              ItemsSource="{Binding AvailableDifficulties}"
+                              DisplayMemberPath="DisplayName"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding SelectedMapDifficulty}"/>
                 </Grid>
             </GroupBox>
 

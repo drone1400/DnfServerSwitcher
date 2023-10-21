@@ -79,6 +79,18 @@ namespace DnfServerSwitcher.ViewModels {
             }
         }
 
+        public List<GameDifficultySelection> AvailableDifficulties { get; } = new List<GameDifficultySelection>() {
+            new GameDifficultySelection("Piece of Cake", 0),
+            new GameDifficultySelection("Let's Rock", 1),
+            new GameDifficultySelection("Come Get Some", 2),
+            new GameDifficultySelection("Damn I'm Good", 3),
+        };
+        public int SelectedMapDifficulty {
+            get => this._selectedMapDifficulty;
+            set => this.SetField(ref this._selectedMapDifficulty, value);
+        }
+        private int _selectedMapDifficulty = 2;
+
         public ICommand CmdLaunchNormal => this._cmdLaunchNormal ??= new MuhCommand(this.LaunchDnf2011Normal, this.CanLaunch);
         private MuhCommand? _cmdLaunchNormal;
 
@@ -408,9 +420,10 @@ namespace DnfServerSwitcher.ViewModels {
                 Glog.Message(MyTraceCategory.General, $"User selected map file at path={finfo.FullName}");
                 
                 string mapName = Path.GetFileNameWithoutExtension(finfo.Name);
+                string args = $"{mapName}?Difficulty={this.SelectedMapDifficulty}";
                 
-                Glog.Message(MyTraceCategory.General, $"Starting DNF2011 with arguments={mapName}");
-                Process.Start(this.Dnf2011ExePath, mapName);
+                Glog.Message(MyTraceCategory.General, $"Starting DNF2011 with arguments={args}");
+                Process.Start(this.Dnf2011ExePath, args);
             }
         }
     }
