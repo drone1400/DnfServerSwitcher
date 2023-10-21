@@ -302,7 +302,7 @@ namespace DnfServerSwitcher.Themes {
 
         private void CloseWindow(object sender, RoutedEventArgs e) {
             this.part_focusButton?.Focus();
-            Application.Current.Shutdown();
+            this.Close();
         }
         
         private void MaximizeWindow(object sender, RoutedEventArgs e) {
