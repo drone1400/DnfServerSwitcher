@@ -4,8 +4,8 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     mc:Ignorable="d">
     <d:ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary
-            Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeColors/ColorsBlueNuke.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeParameters/ColorsBlueNuke.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeParameters/ThemeSizes.xaml" />
     </d:ResourceDictionary.MergedDictionaries>
 
     <BorderGapMaskConverter x:Key="BorderGapMaskConverter" />
@@ -14,7 +14,7 @@
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="{DynamicResource NukedBrushBorderLight}" />
         <Setter Property="Foreground" Value="{DynamicResource NukedBrushTextLight}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="{DynamicResource NukedControlBorderThickness}" />
 
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="2" />

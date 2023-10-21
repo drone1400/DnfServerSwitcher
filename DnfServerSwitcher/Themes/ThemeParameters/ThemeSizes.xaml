@@ -1,0 +1,37 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    
+    <system:Double x:Key="NukedSizeTitleBarButtonSize">26</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarFontSize">16</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarHeight">50</system:Double>
+    
+    <system:Double x:Key="NukedSizeTitleBarQuadBezierRadius">10</system:Double>
+    
+    <system:Double x:Key="NukedSizeTitleBarQuadraticBezierRadius">12</system:Double>
+    
+    <!-- NOTE: set gap to NaN to make it automatically proportional -->
+    <system:Double x:Key="NukedSizeTitleBarGapLeft">NaN</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarBezierLeftWidth">60</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarBezierLeftHeight">20</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarBezierLeftOffset">8</system:Double>
+    
+    <system:Double x:Key="NukedSizeTitleBarGapRight">160</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarBezierRightWidth">80</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarBezierRightHeight">46</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarBezierRightOffset">8</system:Double>
+    
+    <system:Double x:Key="NukedSizeTitleBarCornerRightWidth">40</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarCornerRightHeight">40</system:Double>
+    <system:Double x:Key="NukedSizeTitleBarCornerRightQuadraticBezierRadius">6</system:Double>
+    
+    <system:Double x:Key="NukedSizeComboBoxToggleWidth">24</system:Double>
+    <GridLength x:Key="NukedSizeComboBoxToggleWidthGridLength">24</GridLength>
+    <system:Double x:Key="NukedSizeScrollBarWidth">18</system:Double>
+    <system:Double x:Key="NukedSizeScrollBarButtonSize">16</system:Double>
+    <Geometry x:Key="NukedArrowDown">F1 M 0,0 L 2.5,5 L 5,0 Z</Geometry>
+
+    <system:Double x:Key="NukedControlStrokeThickness">1</system:Double>
+    <Thickness x:Key="NukedControlBorderThickness">1</Thickness>
+    
+</ResourceDictionary>

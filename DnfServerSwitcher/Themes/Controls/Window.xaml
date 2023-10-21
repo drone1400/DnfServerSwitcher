@@ -2,126 +2,152 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:themes="clr-namespace:DnfServerSwitcher.Themes"
                     mc:Ignorable="d">
     <d:ResourceDictionary.MergedDictionaries>
         <ResourceDictionary
-            Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeColors/ColorsBlueNuke.xaml" />
+            Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeParameters/ColorsBlueNuke.xaml" />
+        <ResourceDictionary 
+            Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeParameters/ThemeSizes.xaml" />
     </d:ResourceDictionary.MergedDictionaries>
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary
             Source="pack://application:,,,/DnfServerSwitcher;component/Themes/Controls/TitleBarButton.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <ControlTemplate x:Key="NukedTemplateWindow"
+                     TargetType="{x:Type themes:NukedWindow}">
+        <Border
+            CornerRadius="20"
+            Padding="{TemplateBinding Padding}"
+            Effect="{DynamicResource NukedGlowWindow}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Path
+                    Grid.Row="0" Grid.RowSpan="2"
+                    Name="PART_backgroundLayer1"
+                    Width="Auto" Height="Auto"
+                    Data="M 0,0 L 500,0 L 500, 500 L 0, 500 Z"
+                    Fill="{DynamicResource NukedBrushWindowBackgroundLight}" />
+
+                <Path
+                    Grid.Row="0" Grid.RowSpan="2"
+                    Name="PART_backgroundLayer2"
+                    Width="Auto" Height="Auto"
+                    Data="M 0,0 L 500,0 L 500, 500 L 0, 500 Z"
+                    Fill="{DynamicResource NukedBrushWindowBackgroundDark}"
+                    Effect="{DynamicResource NukedWindowShadow}" />
+
+                <!-- Content - NOTE: margin should be set in code behind according to path calculations... -->
+                <Border
+                    Grid.Row="0" Grid.RowSpan="2"
+                    Name="PART_windowContent"
+                    CornerRadius="8"
+                    BorderThickness="1.5"
+                    BorderBrush="{DynamicResource NukedBrushBorderLight}"
+                    Background="{DynamicResource NukedBrushWindowBackgroundDarkest}">
+                    <ContentPresenter
+                        Focusable="False"
+                        Margin="{TemplateBinding Padding}"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                </Border>
+
+                <!-- Title Bar -->
+                <Grid Grid.Row="0" Height="{TemplateBinding TitleZoneHeight}">
+                    <!-- Title bar text - NOTE: margin should be set in code behind according to path calculations... -->
+                    <TextBlock
+                        Grid.Row="0"
+                        Name="PART_windowTitle"
+                        Text="{TemplateBinding Title}"
+                        Background="Transparent"
+                        Foreground="{DynamicResource NukedBrushTextLight}"
+                        FontSize="18"
+                        VerticalAlignment="Center" />
+
+                    
+                    <!-- Title bar buttons - NOTE: margin should be set in code behind according to path calculations... -->
+                    <StackPanel
+                        Grid.Row="0"
+                        Name="PART_windowTitleBar"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+
+                        <Button x:Name="PART_focusButton" BorderThickness="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"/>
+
+                        <Button Name="PART_minimizeButton"
+                                WindowChrome.IsHitTestVisibleInChrome="True"
+                                Style="{DynamicResource NukedTitleBarButton}"
+                                Content="0" />
+                        <Button Name="PART_maximizeButton"
+                                WindowChrome.IsHitTestVisibleInChrome="True"
+                                Style="{DynamicResource NukedTitleBarButton}"
+                                Content="1" />
+                        <Button Name="PART_closeButton"
+                                WindowChrome.IsHitTestVisibleInChrome="True"
+                                Style="{DynamicResource NukedTitleBarButton}"
+                                Content="r" />
+                    </StackPanel>
+                </Grid>
+
+
+            </Grid>
+        </Border>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="WindowState" Value="Maximized">
+                <Setter Property="Content" TargetName="PART_maximizeButton"
+                        Value="2" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
     <Style x:Key="NukedStyleWindow"
-           TargetType="Window"
-           BasedOn="{StaticResource {x:Type Window}}">
+           TargetType="themes:NukedWindow">
 
         <Setter Property="WindowStyle" Value="None" />
         <Setter Property="AllowsTransparency" Value="True" />
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="{DynamicResource NukedBrushTextLight}" />
         <Setter Property="ResizeMode" Value="CanResize" />
+
+        <Setter Property="Padding" Value="8" />
+
+        <Setter Property="TitleZoneHeight" Value="{DynamicResource NukedSizeTitleBarHeight}" />
+        <Setter Property="QuadBezierRadius" Value="{DynamicResource NukedSizeTitleBarQuadraticBezierRadius}" />
+        
+        <Setter Property="TitleGapLeft" Value="{DynamicResource NukedSizeTitleBarGapLeft}" />
+        <Setter Property="TitleBezierLeftWidth" Value="{DynamicResource NukedSizeTitleBarBezierLeftWidth}" />
+        <Setter Property="TitleBezierLeftHeight" Value="{DynamicResource NukedSizeTitleBarBezierLeftHeight}" />
+        <Setter Property="TitleBezierLeftOffset" Value="{DynamicResource NukedSizeTitleBarBezierLeftOffset}" />
+        
+        <Setter Property="TitleGapRight" Value="{DynamicResource NukedSizeTitleBarGapRight}" />
+        <Setter Property="TitleBezierRightWidth" Value="{DynamicResource NukedSizeTitleBarBezierRightWidth}" />
+        <Setter Property="TitleBezierRightHeight" Value="{DynamicResource NukedSizeTitleBarBezierRightHeight}" />
+        <Setter Property="TitleBezierRightOffset" Value="{DynamicResource NukedSizeTitleBarBezierRightOffset}" />
+        
+        <Setter Property="TitleCornerRightWidth" Value="{DynamicResource NukedSizeTitleBarCornerRightWidth}" />
+        <Setter Property="TitleCornerRightHeight" Value="{DynamicResource NukedSizeTitleBarCornerRightHeight}" />
+        <Setter Property="TitleCornerRightQuadBezierRadius" Value="{DynamicResource NukedSizeTitleBarCornerRightQuadraticBezierRadius}" />
+        
+        
+        
+
         <Setter Property="WindowChrome.WindowChrome">
             <Setter.Value>
-                <WindowChrome CaptionHeight="50"
+                <WindowChrome CaptionHeight="{DynamicResource NukedSizeTitleBarHeight}"
                               ResizeBorderThickness="12" />
             </Setter.Value>
         </Setter>
-        
-        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
 
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Window}">
-
-                    <Border Name="PART_windowGlow"
-                            CornerRadius="20" Padding="8">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="12"
-                                              Direction="-90"
-                                              RenderingBias="Quality"
-                                              ShadowDepth="0"
-                                              Color="{DynamicResource NukedColorWindowGlow}" />
-                        </Border.Effect>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            
-                            <Path
-                                Grid.Row="0" Grid.RowSpan="2"
-                                Name="PART_backgroundLayer0"
-                                Width="Auto" Height="Auto"
-                                Data="M 0,0 L 500,0 L 500, 500 L 0, 500 Z"
-                                Fill="{DynamicResource NukedBrushWindowBackgroundLight}" />
-
-                            <Path
-                                Grid.Row="0" Grid.RowSpan="2"
-                                Name="PART_backgroundLayer1"
-                                Width="Auto" Height="Auto"
-                                Data="M 0,0 L 500,0 L 500, 500 L 0, 500 Z"
-                                Fill="{DynamicResource NukedBrushWindowBackgroundDark}"
-                                Effect="{DynamicResource NukedWindowShadow}"/>
-
-                            <Border
-                                Grid.Row="0" Grid.RowSpan="2"
-                                Name="PART_windowContent"
-                                CornerRadius="8"
-                                BorderThickness="1.5"
-                                BorderBrush="{DynamicResource NukedBrushBorderLight}"
-                                Background="{DynamicResource NukedBrushWindowBackgroundDarkest}">
-                                <ContentPresenter
-                                    Focusable="False"
-                                    Margin="{TemplateBinding Padding}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                            </Border>
-
-                            <!-- Caption Bar -->
-                            <TextBlock
-                                Grid.Row="0"
-                                Name="PART_windowTitle"
-                                Text="{TemplateBinding Title}"
-                                Background="Transparent"
-                                Foreground="{DynamicResource NukedBrushTextLight}"
-                                FontSize="18" />
-
-                            <StackPanel
-                                Grid.Row="0"
-                                Name="PART_windowTitleBar"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Top"
-                                Background="Transparent">
-
-                                <Button x:Name="PART_focusButton" BorderThickness="0" Background="Transparent" />
-
-                                <Button Name="PART_minimizeButton"
-                                        WindowChrome.IsHitTestVisibleInChrome="True"
-                                        Style="{DynamicResource NukedTitleBarButton}"
-                                        Content="0" />
-                                <Button Name="PART_maximizeButton"
-                                        WindowChrome.IsHitTestVisibleInChrome="True"
-                                        Style="{DynamicResource NukedTitleBarButton}"
-                                        Content="1" />
-                                <Button Name="PART_closeButton"
-                                        WindowChrome.IsHitTestVisibleInChrome="True"
-                                        Style="{DynamicResource NukedTitleBarButton}"
-                                        Content="r" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="WindowState" Value="Maximized">
-                            <Setter Property="Content" TargetName="PART_maximizeButton"
-                                    Value="2" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Template" Value="{DynamicResource NukedTemplateWindow}" />
     </Style>
 </ResourceDictionary>

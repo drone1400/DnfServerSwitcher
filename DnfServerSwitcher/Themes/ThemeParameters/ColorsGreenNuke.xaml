@@ -3,9 +3,7 @@
 
     <SolidColorBrush x:Key="NukedBrushTextLight">#FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushTextLightDisabled">#A0A0A0</SolidColorBrush>
-
-
-    <Color x:Key="NukedColorWindowGlow">#FFFFFF</Color>
+    
     <SolidColorBrush x:Key="NukedBrushWindowBackgroundLight">#76E08A</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushWindowBackgroundDark">#397F2B</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushWindowBackgroundDarkest">#1D3A18</SolidColorBrush>
@@ -20,6 +18,12 @@
     <SolidColorBrush x:Key="NukedBrushBorderHighlight">#CEFFCE</SolidColorBrush>
     <SolidColorBrush x:Key="NukedBrushBorderDisabled">#213A18</SolidColorBrush>
     
+    <DropShadowEffect x:Key="NukedGlowWindow"
+                      BlurRadius="12"
+                      Direction="-90"
+                      RenderingBias="Quality"
+                      ShadowDepth="0"
+                      Color="#FFFFFF" />
     <DropShadowEffect x:Key="NukedGlowControl"
                       BlurRadius="6"
                       Direction="-90"

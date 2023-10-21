@@ -4,8 +4,8 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     mc:Ignorable="d">
     <d:ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary
-            Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeColors/ColorsBlueNuke.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeParameters/ColorsBlueNuke.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeParameters/ThemeSizes.xaml" />
     </d:ResourceDictionary.MergedDictionaries>
     
     <Style x:Key="NukedStyleLabel"

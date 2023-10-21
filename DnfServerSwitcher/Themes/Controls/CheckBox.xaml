@@ -4,8 +4,8 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     mc:Ignorable="d">
     <d:ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary
-            Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeColors/ColorsBlueNuke.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeParameters/ColorsBlueNuke.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Themes/ThemeParameters/ThemeSizes.xaml" />
     </d:ResourceDictionary.MergedDictionaries>
     
     <Style x:Key="NukedStyleCheckbox" TargetType="{x:Type CheckBox}">
@@ -13,9 +13,9 @@
         <Setter Property="Background" Value="{DynamicResource NukedBrushBackgroundDark}" />
         <Setter Property="BorderBrush" Value="{DynamicResource NukedBrushBorderLight}" />
         <Setter Property="Foreground" Value="{DynamicResource NukedBrushTextLight}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="{DynamicResource NukedControlBorderThickness}" />
 
-        <Setter Property="Padding" Value="2,0" />
+        <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="2" />
         <Setter Property="Height" Value="20" />
         <Setter Property="Width" Value="Auto" />
@@ -37,7 +37,7 @@
                                 CornerRadius="4"
                                 Width="18"
                                 Height="18"
-                                Margin="{TemplateBinding Padding}" 
+                                Margin="2,0" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}" 
                                 Background="{TemplateBinding Background}" 
@@ -68,6 +68,16 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="BorderBrush" TargetName="border"
+                                    Value="{DynamicResource NukedBrushBorderHighlight}" />
+                            <Setter Property="Effect" TargetName="border"
+                                    Value="{DynamicResource NukedGlowControlMouseOver}" />
+                            <Setter Property="Fill" TargetName="optionMark" 
+                                    Value="{DynamicResource NukedBrushBorderHighlight}"/>
+                            <Setter Property="Fill" TargetName="indeterminateMark" 
+                                    Value="{DynamicResource NukedBrushBorderHighlight}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="true">
                             <Setter Property="BorderBrush" TargetName="border"
                                     Value="{DynamicResource NukedBrushBorderHighlight}" />
                             <Setter Property="Effect" TargetName="border"
