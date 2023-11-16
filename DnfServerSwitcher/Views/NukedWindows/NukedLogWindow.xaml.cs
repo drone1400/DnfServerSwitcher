@@ -1,8 +1,7 @@
 using System;
-using System.Windows;
-using DnfServerSwitcher.Themes;
+using DukNuk.Wpf.Controls;
 namespace DnfServerSwitcher.Views.NukedWindows {
-    public partial class NukedLogWindow : NukedWindow {
+    public partial class NukedLogWindow : NukWindow {
         public NukedLogWindow() {
             InitializeComponent();
             this.TheLogView.StartListening();

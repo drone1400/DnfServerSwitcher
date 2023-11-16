@@ -1,7 +1,7 @@
 using System.Windows;
-using DnfServerSwitcher.Themes;
+using DukNuk.Wpf.Controls;
 namespace DnfServerSwitcher.Views.NukedWindows {
-    public partial class NukedTroubleshootingWindow : NukedWindow {
+    public partial class NukedTroubleshootingWindow : NukWindow {
         public NukedTroubleshootingWindow() {
             InitializeComponent();
         }

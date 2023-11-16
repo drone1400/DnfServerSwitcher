@@ -2,3 +2,6 @@
 	path = FacepunchSteamworks
 	url = https://github.com/Facepunch/Facepunch.Steamworks.git
 	branch = steamworks157
+[submodule "DukNuk"]
+	path = DukNuk
+	url = https://github.com/drone1400/DukNuk

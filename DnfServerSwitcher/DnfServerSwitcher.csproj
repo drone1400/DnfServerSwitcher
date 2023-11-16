@@ -12,11 +12,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Page Update="Themes\Styles.xaml">
-            <Generator>MSBuild:Compile</Generator>
-            <XamlRuntime>Wpf</XamlRuntime>
-            <SubType>Designer</SubType>
-        </Page>
         <Page Update="Views\NukedWindows\NukedMainWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
             <XamlRuntime>Wpf</XamlRuntime>
@@ -28,11 +23,6 @@
             <SubType>Designer</SubType>
         </Page>
         <Page Update="Views\NukedWindows\NukedTroubleshootingWindow.xaml">
-            <Generator>MSBuild:Compile</Generator>
-            <XamlRuntime>Wpf</XamlRuntime>
-            <SubType>Designer</SubType>
-        </Page>
-        <Page Update="Themes\Controls\GroupBox.xaml">
             <Generator>MSBuild:Compile</Generator>
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>
@@ -49,20 +39,21 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Resources\button-deprecated.png"/>
-        <Resource Include="Resources\button-deprecated.png"/>
-        <None Remove="Resources\button-normal.png"/>
-        <Resource Include="Resources\button-normal.png"/>
-        <None Remove="Resources\DNFSwitcherLogo.png"/>
-        <Resource Include="Resources\DNFSwitcherLogo.png"/>
-        <None Remove="Resources\nuke.ico"/>
-        <Resource Include="Resources\nuke.ico"/>
-        <None Remove="Resources\nukeswitch.ico"/>
-        <Resource Include="Resources\nukeswitch.ico"/>
+        <None Remove="Resources\button-deprecated.png" />
+        <Resource Include="Resources\button-deprecated.png" />
+        <None Remove="Resources\button-normal.png" />
+        <Resource Include="Resources\button-normal.png" />
+        <None Remove="Resources\DNFSwitcherLogo.png" />
+        <Resource Include="Resources\DNFSwitcherLogo.png" />
+        <None Remove="Resources\nuke.ico" />
+        <Resource Include="Resources\nuke.ico" />
+        <None Remove="Resources\nukeswitch.ico" />
+        <Resource Include="Resources\nukeswitch.ico" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FacepunchSteamworks\Facepunch.Steamworks\Facepunch.Steamworks.Win32.csproj" Condition="'$(Platform)' == 'x86'"/>
+      <ProjectReference Include="..\DukNuk\DukNukWpf\DukNukWpf.csproj" />
+      <ProjectReference Include="..\FacepunchSteamworks\Facepunch.Steamworks\Facepunch.Steamworks.Win32.csproj" Condition="'$(Platform)' == 'x86'" />
       <ProjectReference Include="..\FacepunchSteamworks\Facepunch.Steamworks\Facepunch.Steamworks.Win64.csproj" Condition="'$(Platform)' == 'x64'" />
     </ItemGroup>
 

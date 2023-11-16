@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
@@ -9,11 +10,12 @@ using DnfServerSwitcher.Models.KrazyIni;
 using DnfServerSwitcher.Models.KrazyIni.Data;
 using DnfServerSwitcher.Models.KrazyIni.Raw;
 using DnfServerSwitcher.Models.Trace;
+using DukNuk.Wpf.Helpers;
 
 namespace DnfServerSwitcher.Models {
     public class DnfServerSwitcherConfig : INotifyPropertyChanged{
         
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -60,9 +62,15 @@ namespace DnfServerSwitcher.Models {
 
         public string Theme { 
             get => this._theme;
-            set => this.SetField(ref this._theme, value);
+            set {
+                if (this.SetField(ref this._theme, value)) {
+                    this.OnPropertyChanged(nameof(this.IsDefaultWpfTheme));
+                }
+            }
         }
-        private string _theme = MyThemes.DookieNookie2001.ToString();
+        private string _theme = "";
+
+        public bool IsDefaultWpfTheme => string.IsNullOrWhiteSpace(this.Theme); 
 
         public void SaveToIni() {
             try {
@@ -106,11 +114,8 @@ namespace DnfServerSwitcher.Models {
                     this.OpenLogWindowOnStartup = openLogWindow == "true" || openLogWindow == "1";
                     
                     string theme = doc["Theme"]["ThemeName"].GetSimpleValue();
-                    if (theme == MyThemes.DookieNookie2001.ToString()) {
-                        this.Theme = theme;
-                    } else {
-                        this.Theme = MyThemes.Default.ToString();
-                    }
+                    string[] validThemes = ThemeManager.Default.GetAvailableThemeColors();
+                    this.Theme = validThemes.Contains(theme) ? theme : "";
                     
                     Glog.Message(MyTraceCategory.Config, $"Done reading config file from path={iniPath}");
                 } catch (Exception) {

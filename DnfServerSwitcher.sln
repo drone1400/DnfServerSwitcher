@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facepunch.Steamworks.Win64"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facepunch.Steamworks.Win32", "FacepunchSteamworks\Facepunch.Steamworks\Facepunch.Steamworks.Win32.csproj", "{81AF7023-2C19-4D8E-BB7E-43BAB5BF00A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DukNukWpf", "DukNuk\DukNukWpf\DukNukWpf.csproj", "{752C0423-A730-47EA-8A24-35837FEEFA34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -52,5 +54,17 @@ Global
 		{81AF7023-2C19-4D8E-BB7E-43BAB5BF00A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81AF7023-2C19-4D8E-BB7E-43BAB5BF00A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81AF7023-2C19-4D8E-BB7E-43BAB5BF00A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Debug|x64.Build.0 = Debug|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Release|x64.ActiveCfg = Release|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Release|x64.Build.0 = Release|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Debug|x86.Build.0 = Debug|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Release|x86.ActiveCfg = Release|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Release|x86.Build.0 = Release|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{752C0423-A730-47EA-8A24-35837FEEFA34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

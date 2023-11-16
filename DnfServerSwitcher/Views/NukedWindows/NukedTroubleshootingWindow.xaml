@@ -1,10 +1,10 @@
-<themes:NukedWindow x:Class="DnfServerSwitcher.Views.NukedWindows.NukedTroubleshootingWindow"
+<themes:NukWindow x:Class="DnfServerSwitcher.Views.NukedWindows.NukedTroubleshootingWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:DnfServerSwitcher.Views"
-        xmlns:themes="clr-namespace:DnfServerSwitcher.Themes"
+        xmlns:themes="clr-namespace:DukNuk.Wpf.Controls;assembly=DukNukWpf"
         xmlns:viewModels="clr-namespace:DnfServerSwitcher.ViewModels"
         mc:Ignorable="d"
         Title="DNF 2011 Server Switcher - Troubleshooting"
@@ -28,4 +28,4 @@
                 Content="OK"
                 Click="ButtonBase_OnClick"/>
     </Grid>
-</themes:NukedWindow>
+</themes:NukWindow>

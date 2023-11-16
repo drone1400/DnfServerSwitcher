@@ -13,6 +13,7 @@ using DnfServerSwitcher.ViewModels;
 using DnfServerSwitcher.Views;
 using DnfServerSwitcher.Views.NukedWindows;
 using DnfServerSwitcher.Views.Windows;
+using DukNuk.Wpf.Helpers;
 
 namespace DnfServerSwitcher {
     /// <summary>
@@ -27,10 +28,13 @@ namespace DnfServerSwitcher {
 
         private Window? _mainWindow;
         private Window? _logWindow;
+        private Window? _troubleWindow;
+        private bool _inhibitShutdown = false;
 
         private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
         private MainViewModel? _mainVm;
-        private MyTraceListenerFileLogger _fileLogger;
+        private MyTraceListenerFileLogger _fileLogger ;
+        private bool _themeLoaded = false;
         
         
         public App() {
@@ -57,12 +61,43 @@ namespace DnfServerSwitcher {
             
             MyTrace.Global.AddListener(this._fileLogger);
             
-            this.InitializeConfig();
-            
             AppDomain.CurrentDomain.UnhandledException += this.UnhandledExceptionHandler;
         }
+        
+        private void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e) {
+            if (!e.IsTerminating) {
+                Glog.Message(MyTraceCategory.Global,"Encountered a global unhandled exception!", MyTraceLevel.Critical);
+            } else {
+                Glog.Message(MyTraceCategory.Global,"Encountered a global unhandled exception that is TERMINATING!", MyTraceLevel.Critical);
+            }
+            if (e.ExceptionObject is Exception ex) {
+                Glog.Error(MyTraceCategory.Global, ex, MyTraceLevel.Critical);
+            } else {
+                Glog.Message(MyTraceCategory.Global, e.ExceptionObject.ToString(), MyTraceLevel.Critical);
+            }
+        }
+        
+        protected override void OnStartup(StartupEventArgs e) {
+            // load config from file
+            this.LoadConfig();
+            
+            // load theme
+            this.LoadTheme(defaultToNormalWpf:true);
+            
+            // initialize view model
+            this._mainVm = new MainViewModel();
+            this._mainVm.InitializeConfig(this._myCfg);
+            
+            // show windows
+            if (this._myCfg.OpenLogWindowOnStartup) {
+                this.ShowLogWindow();
+            }
+            this.ShowMainWindow();
+            
+            base.OnStartup(e);
+        }
 
-        private void InitializeConfig() {
+        private void LoadConfig() {
             if (!this._myCfg.LoadFromIni() ||
                 string.IsNullOrWhiteSpace(this._myCfg.Dnf2011ExePath) ||
                 string.IsNullOrWhiteSpace(this._myCfg.Dnf2011SystemIniPath)) {
@@ -90,76 +125,140 @@ namespace DnfServerSwitcher {
                 this._myCfg.SaveToIni();
             }
         }
-        
-        private void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e) {
-            if (!e.IsTerminating) {
-                Glog.Message(MyTraceCategory.Global,"Encountered a global unhandled exception!", MyTraceLevel.Critical);
-            } else {
-                Glog.Message(MyTraceCategory.Global,"Encountered a global unhandled exception that is TERMINATING!", MyTraceLevel.Critical);
-            }
-            if (e.ExceptionObject is Exception ex) {
-                Glog.Error(MyTraceCategory.Global, ex, MyTraceLevel.Critical);
-            } else {
-                Glog.Message(MyTraceCategory.Global, e.ExceptionObject.ToString(), MyTraceLevel.Critical);
-            }
-        }
-        
-        protected override void OnStartup(StartupEventArgs e) {
-            if (this._myCfg.OpenLogWindowOnStartup) {
-                if (this._myCfg.Theme == MyThemes.DookieNookie2001.ToString()) {
-                    this._logWindow = new NukedLogWindow();
-                } else {
-                    this._logWindow = new LogWindow();
+
+        private void LoadTheme(bool defaultToNormalWpf) {
+            try {
+                string[] themes = ThemeManager.Default.GetAvailableThemeColors();
+
+                if (themes.Contains(this._myCfg.Theme) == false) {
+                    this._myCfg.Theme = defaultToNormalWpf ? "" : themes.First();
                 }
-                this._logWindow.Show();
-                Glog.Message(MyTraceCategory.Config,"Log Window Initialized...");
-                
-                Glog.Message(MyTraceCategory.Config,new List<string>() {
-                    "--- Current configuration settings ---",
-                    "Dnf2011SystemIniPath="+ this._myCfg.Dnf2011SystemIniPath,
-                    "Dnf2011ExePath="+ this._myCfg.Dnf2011ExePath,
-                    "Dnf2011ExeCommandLineArgs="+ this._myCfg.Dnf2011ExeCommandLineArgs,
-                    "EnableSystemIniSteamCloudSync="+ this._myCfg.EnableSystemIniSteamCloudSync,
-                    "OpenLogWindowOnStartup="+ this._myCfg.OpenLogWindowOnStartup,
-                    "Theme="+ this._myCfg.Theme,
-                    "--- End of current configuration settings ---",
-                });
+
+                if (this._myCfg.IsDefaultWpfTheme == false) {
+                    ThemeManager.Default.InitializeAppResources(this._myCfg.Theme);
+                    this._themeLoaded = true;
+                }
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, "Error loading theme...", ex);
             }
-            
-            Glog.Message(MyTraceCategory.General,"Initializing main window...");
-            
-            this._mainVm = new MainViewModel();
-            this._mainVm.InitializeConfig(this._myCfg);
-            
-            if (this._myCfg.Theme == MyThemes.DookieNookie2001.ToString()) {
-                this._mainWindow = new NukedMainWindow();
-            } else {
-                this._mainWindow = new MainWindow();
-            }
-            
-            this._mainWindow.DataContext = this._mainVm;
-            this._mainWindow.Show();
-            this._mainWindow.Closed += this.MainWindowOnClosed;
-            
-            base.OnStartup(e);
         }
+
+        private void UnloadTheme() {
+            try {
+                ThemeManager.Default.FreeFromAppResources();
+                this._themeLoaded = false;
+             } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, "Error unloading theme...", ex);
+            }
+        }
+        
         private void MainWindowOnClosed(object sender, EventArgs e) {
+            this._mainWindow = null;
+            
+            if (this._inhibitShutdown) return;
+            
             Glog.Message(MyTraceCategory.General,"Main window closed! Application shutting down...");
             
             this._mainVm?.MyCfg.SaveToIni();
             this._fileLogger.Flush();
             this._fileLogger.Close();
             this._logWindow?.Close();
-            App.Current.Shutdown();
+            this.Shutdown();
+        }
+        
+        #region showing windows
+        
+        private void ShowLogWindow() {
+            if (this._logWindow != null) return;
+            
+            this._logWindow = this._myCfg.IsDefaultWpfTheme ? new LogWindow() : new NukedLogWindow();
+            this._logWindow.Show();
+            this._logWindow.Closed += ( sender,  args) => {
+                this._logWindow = null;
+            };
+                
+            Glog.Message(MyTraceCategory.Config,"Log Window Initialized...");
+                
+            Glog.Message(MyTraceCategory.Config,new List<string>() {
+                "--- Current configuration settings ---",
+                "Dnf2011SystemIniPath="+ this._myCfg.Dnf2011SystemIniPath,
+                "Dnf2011ExePath="+ this._myCfg.Dnf2011ExePath,
+                "Dnf2011ExeCommandLineArgs="+ this._myCfg.Dnf2011ExeCommandLineArgs,
+                "EnableSystemIniSteamCloudSync="+ this._myCfg.EnableSystemIniSteamCloudSync,
+                "OpenLogWindowOnStartup="+ this._myCfg.OpenLogWindowOnStartup,
+                "Theme="+ this._myCfg.Theme,
+                "--- End of current configuration settings ---",
+            });
+        }
+
+        private void ShowMainWindow() {
+            if (this._mainWindow != null) return;
+            
+            Glog.Message(MyTraceCategory.General,"Initializing main window...");
+
+            this._mainWindow = this._myCfg.IsDefaultWpfTheme ? new MainWindow() : new NukedMainWindow();
+            this._mainWindow.DataContext = this._mainVm;
+            this._mainWindow.Show();
+            this._mainWindow.Closed += this.MainWindowOnClosed;
         }
 
         public void ShowTroubleshootingWindow() {
-            if (this._mainVm?.MyCfg.Theme == MyThemes.DookieNookie2001.ToString()) {
-                NukedTroubleshootingWindow trouble = new NukedTroubleshootingWindow();
-                trouble.ShowDialog();
-            } else {
-                TroubleshootingWindow trouble = new TroubleshootingWindow();
-                trouble.ShowDialog();
+            if (this._troubleWindow != null) return;
+            
+            this._troubleWindow = this._myCfg.IsDefaultWpfTheme ? new TroubleshootingWindow() : new NukedTroubleshootingWindow();
+            this._troubleWindow.ShowDialog();
+            this._troubleWindow.Closed += ( sender,  args) => {
+                this._troubleWindow = null;
+            };
+        }
+        
+        #endregion
+
+        public void ThemeSelectNext() {
+            string crt = ThemeManager.Default.CurrentTheme;
+            bool found = false;
+            
+            string[] themes = ThemeManager.Default.GetAvailableThemeColors();
+            
+            for (int i = 0; i < themes.Length; i++) {
+                if (themes[i] == crt) {
+                    int index = i + 1;
+                    if (index >= themes.Length) index = 0;
+                    crt = themes[index];
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found == false) {
+                crt = themes[0];
+            }
+            ThemeManager.Default.SetTheme(crt);
+        }
+
+        public void ThemeToggleOnOff() {
+            try {
+                this._inhibitShutdown = true;
+                bool showLog = this._logWindow != null;
+
+                this._troubleWindow?.Close();
+                this._logWindow?.Close();
+                this._mainWindow?.Close();
+
+                if (this._themeLoaded) {
+                    this.UnloadTheme();
+                    this._myCfg.Theme = "";
+                } else {
+                    this.LoadTheme(defaultToNormalWpf:false);
+                }
+                
+                if (showLog) 
+                    this.ShowLogWindow();
+                this.ShowMainWindow();
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, "Error toggling theme mode..", ex);
+            } finally {
+                this._inhibitShutdown = false;
             }
         }
     }
