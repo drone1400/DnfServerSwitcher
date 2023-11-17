@@ -166,7 +166,7 @@
                             Margin="8"
                             HorizontalAlignment="Center"
                             Content="Show Help Info"
-                            Command="{Binding CmdShowTroubleshootingInfo}" />
+                            Command="{Binding CmdShowHelpFaq}" />
 
                     <Button Grid.Row="1" Grid.Column="0"
                             Width="220" Height="30"

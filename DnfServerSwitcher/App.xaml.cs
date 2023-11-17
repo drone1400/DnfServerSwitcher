@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using DnfServerSwitcher.Models;
@@ -24,11 +25,13 @@ namespace DnfServerSwitcher {
         public const int DNF2011_STEAMAPPID = 57900;
 
         public string AppBaseDirectory { get; } = AppDomain.CurrentDomain.BaseDirectory;
-        
+        public string AppVersion { get; } = "";
+
 
         private Window? _mainWindow;
         private Window? _logWindow;
-        private Window? _troubleWindow;
+        private Window? _faqWindow;
+        private Window? _aboutWindow;
         private bool _inhibitShutdown = false;
 
         private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
@@ -53,6 +56,8 @@ namespace DnfServerSwitcher {
                     this.AppBaseDirectory = finfo.DirectoryName;
                 }
             }
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            this.AppVersion = $"V{version}";
             
             this._fileLogger = new MyTraceListenerFileLogger(this.AppBaseDirectory, "DnfSS_ErrorLog", false) {
                 FlushAfterEachMessage = true,
@@ -158,7 +163,10 @@ namespace DnfServerSwitcher {
             if (this._inhibitShutdown) return;
             
             Glog.Message(MyTraceCategory.General,"Main window closed! Application shutting down...");
-            
+            this.StartShutdown();
+        }
+
+        public void StartShutdown() {
             this._mainVm?.MyCfg.SaveToIni();
             this._fileLogger.Flush();
             this._fileLogger.Close();
@@ -202,14 +210,25 @@ namespace DnfServerSwitcher {
             this._mainWindow.Show();
         }
 
-        public void ShowTroubleshootingWindow() {
-            if (this._troubleWindow != null) return;
+        public void ShowHelpFaqWindow() {
+            if (this._faqWindow != null) return;
             
-            this._troubleWindow = this._myCfg.IsDefaultWpfTheme ? new TroubleshootingWindow() : new NukedTroubleshootingWindow();
-            this._troubleWindow.Closed += ( sender,  args) => {
-                this._troubleWindow = null;
+            this._faqWindow = this._myCfg.IsDefaultWpfTheme ? new FaqWindow() : new NukedFaqWindow();
+            this._faqWindow.Closed += ( sender,  args) => {
+                this._faqWindow = null;
             };
-            this._troubleWindow.ShowDialog();
+            this._faqWindow.ShowDialog();
+        }
+        
+        public void ShowHelpAboutWindow() {
+            if (this._aboutWindow != null) return;
+            
+            this._aboutWindow = this._myCfg.IsDefaultWpfTheme ? new AboutWindow() : new NukedAboutWindow();
+            this._aboutWindow.DataContext = this._mainVm;
+            this._aboutWindow.Closed += ( sender,  args) => {
+                this._aboutWindow = null;
+            };
+            this._aboutWindow.ShowDialog();
         }
         
         #endregion
@@ -242,7 +261,8 @@ namespace DnfServerSwitcher {
                 this._inhibitShutdown = true;
                 bool showLog = this._logWindow != null;
 
-                this._troubleWindow?.Close();
+                this._faqWindow?.Close();
+                this._aboutWindow?.Close();
                 this._logWindow?.Close();
                 this._mainWindow?.Close();
 

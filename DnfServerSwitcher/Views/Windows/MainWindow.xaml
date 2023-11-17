@@ -13,31 +13,39 @@
         Icon="../../Resources/nukeswitch.ico"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
         KeyDown="MainWindow_OnKeyDown">
-    <views:MainView>
-        <views:MainView.Resources>
-            <Style TargetType="Label"
-                   BasedOn="{StaticResource {x:Type Label}}">
-                <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="HorizontalAlignment" Value="Left" />
-            </Style>
-            <Style TargetType="TextBox"
-                   BasedOn="{StaticResource {x:Type TextBox}}">
-                <Setter Property="Margin" Value="4" />
-                <Setter Property="Height" Value="24" />
-            </Style>
-            <Style TargetType="Button"
-                   BasedOn="{StaticResource {x:Type Button}}">
-                <Setter Property="Margin" Value="4" />
-                <Setter Property="Height" Value="24" />
-                <Setter Property="HorizontalAlignment" Value="Center" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-            </Style>
-            <Style TargetType="ComboBox"
-                   BasedOn="{StaticResource {x:Type ComboBox}}">
-                <Setter Property="Margin" Value="4" />
-                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                <Setter Property="VerticalContentAlignment" Value="Center" />
-            </Style>
-        </views:MainView.Resources>
-    </views:MainView>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <views:MenuView Grid.Row="0"/>
+        <views:MainView Grid.Row="1">
+            <views:MainView.Resources>
+                <Style TargetType="Label"
+                       BasedOn="{StaticResource {x:Type Label}}">
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="HorizontalAlignment" Value="Left" />
+                </Style>
+                <Style TargetType="TextBox"
+                       BasedOn="{StaticResource {x:Type TextBox}}">
+                    <Setter Property="Margin" Value="4" />
+                    <Setter Property="Height" Value="24" />
+                </Style>
+                <Style TargetType="Button"
+                       BasedOn="{StaticResource {x:Type Button}}">
+                    <Setter Property="Margin" Value="4" />
+                    <Setter Property="Height" Value="24" />
+                    <Setter Property="HorizontalAlignment" Value="Center" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+                <Style TargetType="ComboBox"
+                       BasedOn="{StaticResource {x:Type ComboBox}}">
+                    <Setter Property="Margin" Value="4" />
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                </Style>
+            </views:MainView.Resources>
+        </views:MainView>
+    </Grid>
 </Window>

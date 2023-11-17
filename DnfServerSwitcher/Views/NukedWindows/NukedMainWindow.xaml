@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:DnfServerSwitcher.Views"
+        xmlns:views="clr-namespace:DnfServerSwitcher.Views"
         xmlns:themes="clr-namespace:DukNuk.Wpf.Controls;assembly=DukNukWpf"
         xmlns:viewModels="clr-namespace:DnfServerSwitcher.ViewModels"
         mc:Ignorable="d"
@@ -13,5 +13,8 @@
         Icon="../../Resources/nukeswitch.ico"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
         KeyDown="NukedMainWindow_OnKeyDown">
-    <local:MainView />
+    <themes:NukWindow.MenuContent>
+        <views:MenuView/>
+    </themes:NukWindow.MenuContent>
+    <views:MainView />
 </themes:NukWindow>

@@ -1,0 +1,116 @@
+﻿<UserControl x:Class="DnfServerSwitcher.Views.HelpFaq"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DnfServerSwitcher.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="8000" d:DesignWidth="500">
+    <Grid>
+        <StackPanel>
+            <StackPanel.Resources>
+                <Style
+                    x:Key="{x:Type TextBlock}"
+                    TargetType="{x:Type TextBlock}">
+                    <Setter Property="Margin" Value="8"/>
+                    <Setter Property="TextWrapping" Value="Wrap"/>
+                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                </Style>
+            </StackPanel.Resources>
+            
+            <TextBlock>
+                <Run FontWeight="Bold">What is Deprecated mode?</Run>
+                <LineBreak/>
+                <Run>
+                    At some point during development, the multiplayer system for DNF was overhauled.
+                    However, some of the features of the old multiplayer system remain and can be accessed by modifying the system.ini configurations...
+                    The old system is called "Deprecated" because well, it *was* deprecated.
+                </Run>
+            </TextBlock>
+            
+            <TextBlock>
+                <Run FontWeight="Bold">What is Deprecated mode good for?</Run>
+                <LineBreak/>
+                <Run>
+                    Deprecated mode allows for a player limit higher than 8 and, perhaps more importantly, 
+                    it allows loading custom multiplayer maps!
+                </Run>
+            </TextBlock>
+            
+            <TextBlock>
+                <Run FontWeight="Bold">I edited one of the .ini files in Notepad and broke something!</Run>
+                <LineBreak/>
+                <Run>
+                    DNF2011 uses UTF-16 encoding with no "byte order mark" for its .ini config files.
+                    Saving the files with Notepad breaks this encoding and DNF2011 won't read the files anymore!
+                </Run>
+                <LineBreak/>
+                <Run>
+                    If you want to manually edit the .ini files you *must* use Notepad++ or a similar editor that preserves the exact encoding used.
+                </Run>
+                <LineBreak/>
+                <Run>
+                    NOTE: Saving the file with UTF-16 encoding but having the BOM (byte order mark) at the start of the file won't work either!
+                </Run>
+                <LineBreak/>
+                <Run>
+                    You can get Notepad++ on their official website here:
+                </Run>
+                <LineBreak/>
+                <Hyperlink
+                    RequestNavigate="Hyperlink_OnRequestNavigate" 
+                    NavigateUri="https://notepad-plus-plus.org">
+                    https://notepad-plus-plus.org
+                </Hyperlink>
+            </TextBlock>
+            
+            <TextBlock>
+                <Run FontWeight="Bold">My player name doesn't work in Deprecated, what do?</Run>
+                <LineBreak/>
+                <Run>
+                    Unfortunately in Deprecated mode, you need to manually set the player name each map via a console command. 
+                    Since the console is disabled by default, the easiest way to do it is to set a keybinding in the user.ini file to set the player name for you.
+                    The binding must have this format:
+                </Run>
+                <LineBreak/>
+                <Run FontStyle="Italic">
+                    [KEY]=name [your name]
+                </Run>
+                <LineBreak/>
+                <Run>
+                    So for example, if you want to set your name to "John Duke" and bind it to the F11 key, the custom binding will look like this:
+                </Run>
+                <LineBreak/>
+                <Run FontStyle="Italic">
+                    F11=name John Duke
+                </Run>
+                <LineBreak/>
+                <Run>
+                    You only need to edit the user.ini file once, afterwards the binding will work every time you are in a Deprecated multiplayer map. 
+                    Of course, you can use this application to automagically set the binding yourself.
+                </Run>
+            </TextBlock>
+            
+            <TextBlock>
+                <Run FontWeight="Bold">Launching in Deprecated mode doesn't seem to work!?</Run>
+                <LineBreak/>
+                <Run>
+                    Sometimes the DNF2011's Steam Cloud synchronization starts acting up and overwrites the modified system.ini file after you launch the game. 
+                    If this happens, the launcher won't work as intended, as its changes get overriden by the Steam Cloud backup! 
+                    To fix this you can try two things:
+                </Run>
+                <LineBreak/>
+                <Run>
+                    1. Click the 'Delete remotecache.vdf file' button to delete the remote cache file, this can *maybe* help resynchronize the Steam Cloud data for DNF2011...
+                </Run>
+                <LineBreak/>
+                <Run>
+                    2. If the problem persists, enable the option to update the system.ini and user.ini files automatically in the Steam cloud by ticking the corresponding checkbox. 
+                    This means that before launching the game, the application will upload the modified system.ini and user.ini files directly to your DNF2011's Steam Cloud. 
+                    NOTE: In order for this to work, you need to already have Steam open!
+                </Run>
+            </TextBlock>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

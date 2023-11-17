@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,6 +15,7 @@ using DnfServerSwitcher.Models.KrazyIni;
 using DnfServerSwitcher.Models.KrazyIni.Data;
 using DnfServerSwitcher.Models.SteamApi;
 using DnfServerSwitcher.Models.Trace;
+using DnfServerSwitcher.Views;
 using DukNuk.Wpf.Mvvm;
 using Microsoft.Win32;
 
@@ -28,6 +30,10 @@ namespace DnfServerSwitcher.ViewModels {
             field = value;
             this.OnPropertyChanged(propertyName);
             return true;
+        }
+
+        public MainViewModel() {
+            this.AppVersion = ((Application.Current as App)?.AppVersion) ?? "V - Unknown?";
         }
 
         public DnfServerSwitcherConfig MyCfg { get => this._myCfg; }
@@ -81,6 +87,12 @@ namespace DnfServerSwitcher.ViewModels {
             }
         }
 
+        public string AppVersion {
+            get => this._appVersion;
+            private set => this.SetField(ref this._appVersion, value);
+        }
+        private string _appVersion = "";
+
         public List<GameDifficultySelection> AvailableDifficulties { get; } = new List<GameDifficultySelection>() {
             new GameDifficultySelection("Piece of Cake", 0),
             new GameDifficultySelection("Let's Rock", 1),
@@ -99,14 +111,26 @@ namespace DnfServerSwitcher.ViewModels {
         public ICommand CmdLaunchDeprecated => this._cmdLaunchDeprecated ??= new DukCommand(this.LaunchDnf2011Deprecated, this.CanLaunch);
         private DukCommand? _cmdLaunchDeprecated;
 
+        public ICommand CmdQuit => this._cmdQuit ??= new DukCommand(() => {
+            (Application.Current as App)?.StartShutdown();
+        }, () => true);
+        private DukCommand? _cmdQuit;
+
         public ICommand CmdBrowseExe => this._cmdBrowseExe ??= new DukCommand(this.BrowseDnf2011Exe, () => true);
         private DukCommand? _cmdBrowseExe;
 
         public ICommand CmdBrowseSystemIni => this._cmdBrowseSystemIni ??= new DukCommand(this.BrowseDnf2011SystemIni, () => true);
         private DukCommand? _cmdBrowseSystemIni;
 
-        public ICommand CmdShowTroubleshootingInfo => this._cmdShowTroubleshootingInfo ??= new DukCommand(this.ShowTroubleshootingInfoWindow, () => true);
-        private DukCommand? _cmdShowTroubleshootingInfo;
+        public ICommand CmdShowHelpFaq => this._cmdShowHelpFaq ??= new DukCommand(() => {
+            (Application.Current as App)?.ShowHelpFaqWindow();
+        }, () => true);
+        private DukCommand? _cmdShowHelpFaq;
+        
+        public ICommand CmdShowHelpAbout => this._cmdShowHelpAbout ??= new DukCommand(() => {
+            (Application.Current as App)?.ShowHelpAboutWindow();
+        }, () => true);
+        private DukCommand? _cmdShowHelpAbout;
 
         public ICommand CmdDeleteRemoteCacheVdf => this._cmdDeleteRemoteCacheVdf ??= new DukCommand(this.DeleteRemoteCacheVdf, this.CanDeleteRemoteCacheVdf);
         private DukCommand? _cmdDeleteRemoteCacheVdf;
@@ -125,7 +149,7 @@ namespace DnfServerSwitcher.ViewModels {
             this._cmdLaunchDeprecated?.OnCanExecuteChanged();
             this._cmdBrowseExe?.OnCanExecuteChanged();
             this._cmdBrowseSystemIni?.OnCanExecuteChanged();
-            this._cmdShowTroubleshootingInfo?.OnCanExecuteChanged();
+            this._cmdShowHelpFaq?.OnCanExecuteChanged();
             this._cmdDeleteRemoteCacheVdf?.OnCanExecuteChanged();
             this._cmdOpenDnfMapsWebsite?.OnCanExecuteChanged();
             this._cmdQuickOpenMap?.OnCanExecuteChanged();
@@ -420,16 +444,6 @@ namespace DnfServerSwitcher.ViewModels {
                 }
                 if (ofd.ShowDialog() == true) {
                     this.Dnf2011SystemIniPath = ofd.FileName;
-                }
-            } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.Command, ex);
-            }
-        }
-
-        private void ShowTroubleshootingInfoWindow() {
-            try {
-                if (Application.Current is App app) {
-                    app.ShowTroubleshootingWindow();
                 }
             } catch (Exception ex) {
                 Glog.Error(MyTraceCategory.Command, ex);

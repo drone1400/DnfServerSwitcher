@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="DnfServerSwitcher.Views.HelpAbout"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DnfServerSwitcher.Views"
+             xmlns:viewModels="clr-namespace:DnfServerSwitcher.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="8000" d:DesignWidth="500"
+             d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}">
+    <Grid>
+        <StackPanel>
+            <StackPanel.Resources>
+                <Style
+                    x:Key="{x:Type TextBlock}"
+                    TargetType="{x:Type TextBlock}">
+                    <Setter Property="Margin" Value="8" />
+                    <Setter Property="TextWrapping" Value="Wrap" />
+                    <Setter Property="HorizontalAlignment" Value="Left" />
+                </Style>
+            </StackPanel.Resources>
+
+            <TextBlock
+                Margin="4,16,4,2"
+                FontWeight="Bold"
+                FontSize="20"
+                HorizontalAlignment="Center">
+                DNF Server Switcher
+            </TextBlock>
+            <TextBlock
+                Margin="4,2,4,16"
+                FontWeight="Bold"
+                FontSize="14"
+                HorizontalAlignment="Center">
+                <Run>Version: </Run>
+                <Run Text="{Binding AppVersion, Mode=OneWay}"/>
+            </TextBlock>
+            
+            <TextBlock
+                Margin="4,2,4,16"
+                HorizontalAlignment="Center">
+                A launcher application for Duke Nukem Forever 2011.
+            </TextBlock>
+            
+            <TextBlock>
+                <Run Text="You can get cool DNF maps and mods here:" />
+                <LineBreak />
+                <Hyperlink
+                    RequestNavigate="Hyperlink_OnRequestNavigate"
+                    NavigateUri="https://dnfmaps.com">
+                    https://dnfmaps.com
+                </Hyperlink>
+            </TextBlock>
+            
+            <TextBlock
+                Margin="4,8,4,8"
+                HorizontalAlignment="Center">
+                Resources used in this application:
+            </TextBlock>
+            <TextBlock>
+                <Run Text="Steamworks API access is provided by Facepunch.Steamworks:" />
+                <LineBreak />
+                <Hyperlink
+                    RequestNavigate="Hyperlink_OnRequestNavigate"
+                    NavigateUri="https://github.com/Facepunch/Facepunch.Steamworks">
+                    https://github.com/Facepunch/Facepunch.Steamworks
+                </Hyperlink>
+                <LineBreak />
+                <LineBreak />
+                
+                <Run Text="DNF 2011 Server Switcher Project repository:" />
+                <LineBreak />
+                <Hyperlink
+                    RequestNavigate="Hyperlink_OnRequestNavigate"
+                    NavigateUri="https://github.com/drone1400/DnfServerSwitcher/">
+                    https://github.com/drone1400/DnfServerSwitcher/
+                </Hyperlink>
+                <LineBreak />
+                <LineBreak />
+                
+                <Run Text="Visual theme project repository:" />
+                <LineBreak />
+                <Hyperlink
+                    RequestNavigate="Hyperlink_OnRequestNavigate"
+                    NavigateUri="https://github.com/drone1400/DukNuk/">
+                    https://github.com/drone1400/DukNuk/
+                </Hyperlink>
+                <LineBreak />
+                <LineBreak />
+                
+                <Run Text="Icons and graphics by StarNukem" />
+                <LineBreak />
+                <Hyperlink
+                    RequestNavigate="Hyperlink_OnRequestNavigate"
+                    NavigateUri="twitch.tv/StarNukem">
+                    twitch.tv/StarNukem
+                </Hyperlink>
+                <LineBreak />
+                <LineBreak />
+                
+                <Run Text="dnWindow.u modfile by Optimus X" />
+                <LineBreak />
+            </TextBlock>
+
+        </StackPanel>
+    </Grid>
+</UserControl>
