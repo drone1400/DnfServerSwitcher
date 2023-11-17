@@ -172,11 +172,11 @@ namespace DnfServerSwitcher {
             if (this._logWindow != null) return;
             
             this._logWindow = this._myCfg.IsDefaultWpfTheme ? new LogWindow() : new NukedLogWindow();
-            this._logWindow.Show();
             this._logWindow.Closed += ( sender,  args) => {
                 this._logWindow = null;
             };
-                
+            this._logWindow.Show();
+
             Glog.Message(MyTraceCategory.Config,"Log Window Initialized...");
                 
             Glog.Message(MyTraceCategory.Config,new List<string>() {
@@ -198,18 +198,18 @@ namespace DnfServerSwitcher {
 
             this._mainWindow = this._myCfg.IsDefaultWpfTheme ? new MainWindow() : new NukedMainWindow();
             this._mainWindow.DataContext = this._mainVm;
-            this._mainWindow.Show();
             this._mainWindow.Closed += this.MainWindowOnClosed;
+            this._mainWindow.Show();
         }
 
         public void ShowTroubleshootingWindow() {
             if (this._troubleWindow != null) return;
             
             this._troubleWindow = this._myCfg.IsDefaultWpfTheme ? new TroubleshootingWindow() : new NukedTroubleshootingWindow();
-            this._troubleWindow.ShowDialog();
             this._troubleWindow.Closed += ( sender,  args) => {
                 this._troubleWindow = null;
             };
+            this._troubleWindow.ShowDialog();
         }
         
         #endregion
@@ -233,6 +233,7 @@ namespace DnfServerSwitcher {
             if (found == false) {
                 crt = themes[0];
             }
+            this._myCfg.Theme = crt;
             ThemeManager.Default.SetTheme(crt);
         }
 
@@ -249,6 +250,7 @@ namespace DnfServerSwitcher {
                     this.UnloadTheme();
                     this._myCfg.Theme = "";
                 } else {
+                    this._myCfg.Theme = ThemeManager.Default.GetAvailableThemeColors().First();
                     this.LoadTheme(defaultToNormalWpf:false);
                 }
                 
