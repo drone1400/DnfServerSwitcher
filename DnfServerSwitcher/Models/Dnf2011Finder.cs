@@ -1,70 +1,118 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using DnfServerSwitcher.Models.SteamApi;
 using DnfServerSwitcher.Models.Trace;
 using Microsoft.Win32;
+using Steamworks;
 namespace DnfServerSwitcher.Models {
     public class Dnf2011Finder {
         public string Dnf2011InstallPath { get; private set; } = "";
         public string SteamInstallPath { get; private set; } = "";
         public string Dnf2011Exe { get; private set; } = "";
-        public Dictionary<string, string> Dnf2011SystemIni { get; private set; } = new Dictionary<string, string>();
+        public string Dnf2011SystemIni { get; private set; } = "";
 
-        public void FindPaths() {
+        public const string DNF_SUBFOLDER_GAME_EXE = @"System\DukeForever.exe";
+        public const string DNF_SUBFOLDER_GAME = @"steamapps\common\Duke Nukem Forever";
+        public const string DNF_SUBFOLDER_REMOTE = @"57900\remote";
+
+        public void FindPaths(SteamApiHelper? helper = null) {
             try {
-                this.FindWindowsDnfInstallPaths();
-                this.FindWindowsSteamInstallPaths();
-
-                if (Directory.Exists(this.Dnf2011InstallPath) == false) {
-                    this.Dnf2011InstallPath = "";
-                }
+                // try to find steam from system registry...
+                this.SteamInstallPath = FindSteamInstallPathsFromWindowsRegistry();
                 if (Directory.Exists(this.SteamInstallPath) == false) {
                     this.SteamInstallPath = "";
                 }
-
-                if (string.IsNullOrWhiteSpace(this.Dnf2011InstallPath) &&
-                    string.IsNullOrWhiteSpace(this.SteamInstallPath) == false) {
-                    // could not find DNF install path but found Steam install path...
-                    // fall back to default path inside the steam folder...
-                    this.Dnf2011InstallPath = Path.Combine(this.SteamInstallPath, @"steamapps\common\Duke Nukem Forever");
-                }
-
-                this.Dnf2011Exe = string.IsNullOrWhiteSpace(this.Dnf2011InstallPath)
-                    ? "" : Path.Combine(this.Dnf2011InstallPath, @"System\DukeForever.exe");
-
-                if (File.Exists(this.Dnf2011Exe) == false) {
+                
+                // try to find DNF from windows registry
+                this.Dnf2011InstallPath = FindDnfInstallPathsFromWindowsRegistry();
+                this.Dnf2011Exe = Path.Combine(this.Dnf2011InstallPath, Dnf2011Finder.DNF_SUBFOLDER_GAME_EXE);
+                if (Directory.Exists(this.Dnf2011InstallPath) == false || File.Exists(this.Dnf2011Exe) == false) {
+                    this.Dnf2011InstallPath = "";
                     this.Dnf2011Exe = "";
                 }
 
-                this.FindWindowsDnfConfigFiles();
+                // fallback to default Steam install folder...
+                if ((string.IsNullOrWhiteSpace(this.Dnf2011InstallPath) || string.IsNullOrWhiteSpace(this.Dnf2011Exe))&&
+                    string.IsNullOrWhiteSpace(this.SteamInstallPath) == false) {
+                    // could not find DNF install path but found Steam install path...
+                    // fall back to default path inside the steam folder...
+                    this.Dnf2011InstallPath = Path.Combine(this.SteamInstallPath, Dnf2011Finder.DNF_SUBFOLDER_GAME);
+                    this.Dnf2011Exe = Path.Combine(this.Dnf2011InstallPath, Dnf2011Finder.DNF_SUBFOLDER_GAME_EXE);
+                }
+                if (Directory.Exists(this.Dnf2011InstallPath) == false || File.Exists(this.Dnf2011Exe) == false) {
+                    this.Dnf2011InstallPath = "";
+                    this.Dnf2011Exe = "";
+                }
+                
+                // fallback to SteamAPI
+                if (helper != null && (string.IsNullOrWhiteSpace(this.Dnf2011InstallPath) || string.IsNullOrWhiteSpace(this.Dnf2011Exe)))
+                {
+                    try {
+                        this.Dnf2011InstallPath = helper.GetDnfInstallPath();
+                        this.Dnf2011Exe = Path.Combine(this.Dnf2011InstallPath, Dnf2011Finder.DNF_SUBFOLDER_GAME_EXE);
+                        if (Directory.Exists(this.Dnf2011InstallPath) == false || File.Exists(this.Dnf2011Exe) == false) {
+                            this.Dnf2011InstallPath = "";
+                            this.Dnf2011Exe = "";
+                        }
+                    } catch (Exception ex) {
+                        Glog.Error(MyTraceCategory.General, "Unexpected error locating DNF2011 install path from SteamAPI!", ex);
+                        this.Dnf2011InstallPath = "";
+                        this.Dnf2011Exe = "";
+                    }
+                }
+
+                if (helper != null) {
+                    try {
+                        string id = helper.GetUserId32();
+                        string systemIni = Path.Combine(this.SteamInstallPath, "userdata", id, @"57900\remote\system.ini");
+                        if (File.Exists(systemIni)) {
+                            this.Dnf2011SystemIni = systemIni;
+                        }
+                    } catch (Exception ex) {
+                        Glog.Error(MyTraceCategory.General, "Unexpected error locating DNF2011 install path from SteamAPI!", ex);
+                        this.Dnf2011SystemIni = "";
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(this.Dnf2011SystemIni)) {
+                    Dictionary<string, string> inis = FindDnfSystemIniFilesFromSteam(this.SteamInstallPath);
+                    // just get first result for now..
+                    this.Dnf2011SystemIni = inis.First().Value;
+                }
+
+
             } catch (Exception ex) {
                 Glog.Error(MyTraceCategory.General, ex);
             }
         }
 
-        private void FindWindowsDnfConfigFiles() {
-            if (string.IsNullOrWhiteSpace(this.SteamInstallPath)) {
-                this.Dnf2011SystemIni.Clear();
-                return;
-            }
+        private static Dictionary<string,string> FindDnfSystemIniFilesFromSteam(string steamBase) {
+            Dictionary<string, string> systemInis = new Dictionary<string, string>();
+            
+            try {
+                string userData = Path.Combine(steamBase, "userdata");
+                string[] userIds = Directory.GetDirectories(userData);
 
-            string userData = Path.Combine(this.SteamInstallPath, "userdata");
-            string[] userIds = Directory.GetDirectories(userData);
-
-            foreach (string userId in userIds) {
-                string path = Path.Combine(userData, userId, @"57900\remote");
-                if (Directory.Exists(path)) {
-                    this.Dnf2011SystemIni.Add(userId, Path.Combine(path,"system.ini"));
+                foreach (string userId in userIds) {
+                    string path = Path.Combine(userData, userId, @"57900\remote");
+                    if (Directory.Exists(path)) {
+                        systemInis.Add(userId, Path.Combine(path, "system.ini"));
+                    }
                 }
-            } 
+
+                return systemInis;
+            }  catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, "Unexpected error locating system.ini!", ex);
+                return systemInis;
+            }
         }
         
-        private void FindWindowsSteamInstallPaths() {
+        private static string FindSteamInstallPathsFromWindowsRegistry() {
             RegistryKey? hklm = null;
             RegistryKey? key = null;
             try {
-                this.SteamInstallPath = "";
-                
                 // on a 64 bit system, make sure to look into HKLM\Wow6432Node\SOFTWARE since Steam is 32 bit
                 // on a 32 bit system, just use default location
                 hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, 
@@ -76,49 +124,42 @@ namespace DnfServerSwitcher.Models {
                     hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
                     key = hklm.OpenSubKey(@"SOFTWARE\Valve\Steam");
                 }
-                if (key == null) {
-                    return;
-                }
 
-                object? pathObj = key.GetValue("InstallPath");
+                object? pathObj = key?.GetValue("InstallPath");
 
-                if (pathObj is not string pathStr)
-                    return;
+                if (pathObj is string pathStr)
+                    return pathStr;
 
-                this.SteamInstallPath = pathStr;
+                return "";
             } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.General, "Unexpected error locating Steam install path! Unable to automatically determine install paths...", ex);
-                this.SteamInstallPath = "";
+                Glog.Error(MyTraceCategory.General, "Unexpected error locating Steam install path from windows registry!", ex);
+                return "";
             } finally {
                 key?.Dispose();
                 hklm?.Dispose();
             }
         }
         
-        private void FindWindowsDnfInstallPaths() {
+        private static string FindDnfInstallPathsFromWindowsRegistry() {
             RegistryKey? hklm = null;
             RegistryKey? key = null;
             try {
-                this.Dnf2011InstallPath = "";
-
                 // TODO: not sure if this is correct for 32 bit windows? need to test...
                 hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
                     Environment.Is64BitOperatingSystem
                         ? RegistryView.Registry64 // on a 64 bit system, make sure to look in HKLM\SOFTWARE and not HKLM\Wow6432Node\SOFTWARE
                         : RegistryView.Default);  // on a 32 bit system, just use default location
                 key = hklm.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 57900");
-                if (key == null)
-                    return;
+                
+                object? pathObj = key?.GetValue("InstallLocation");
 
-                object? pathObj = key.GetValue("InstallLocation");
+                if (pathObj is string pathStr)
+                    return pathStr;
 
-                if (pathObj is not string pathStr)
-                    return;
-
-                this.Dnf2011InstallPath = pathStr;
+                return "";
             } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.General, "Unexpected error locating DNF2011 install path! Unable to automatically determine install paths...", ex);
-                this.Dnf2011InstallPath = "";
+                Glog.Error(MyTraceCategory.General, "Unexpected error locating DNF2011 install path from windows registry!", ex);
+                return "";
             } finally {
                 key?.Dispose();
                 hklm?.Dispose();

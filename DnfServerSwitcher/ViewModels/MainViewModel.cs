@@ -141,8 +141,12 @@ namespace DnfServerSwitcher.ViewModels {
         public ICommand CmdQuickPlayMap => this._cmdQuickOpenMap ??= new DukCommand(this.OpenDnfMap, this.CanOpenDnfMap);
         private DukCommand? _cmdQuickOpenMap;
 
-        private SteamApiHelper _steamHelper = new SteamApiHelper();
-
+        public SteamApiHelper? SteamApi {
+            get => this._steamApi;
+            set => this.SetField(ref this._steamApi, value);
+        }
+        private SteamApiHelper? _steamApi = null;
+        
         public void InitializeConfig(DnfServerSwitcherConfig cfg) {
             this._myCfg = cfg;
             this._cmdLaunchNormal?.OnCanExecuteChanged();
@@ -362,7 +366,7 @@ namespace DnfServerSwitcher.ViewModels {
 
 
         private void DoSteamThingy() {
-            if (this.EnableSystemIniSteamCloudSync) {
+            if (this.EnableSystemIniSteamCloudSync && this.SteamApi != null) {
                 Glog.Message(MyTraceCategory.General, $"Attempting to write system.ini to Steam Remote Storage...");
 
                 // NOTE: don't really need this, was mostly for my own debug purposes...
@@ -371,7 +375,7 @@ namespace DnfServerSwitcher.ViewModels {
                 //     return;
                 // }
 
-                if (!this._steamHelper.WriteSystemIni(this.Dnf2011SystemIniPath)) {
+                if (this.SteamApi.WriteSystemIni(this.Dnf2011SystemIniPath) != true) {
                     MessageBox.Show("An error has occurred trying to write the system.ini file to Steam Remote Storage... See log file for more info.", "Steam Remote Storage Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }

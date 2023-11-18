@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using DnfServerSwitcher.Models;
+using DnfServerSwitcher.Models.SteamApi;
 using DnfServerSwitcher.Models.Trace;
 using DnfServerSwitcher.ViewModels;
 using DnfServerSwitcher.Views;
@@ -35,6 +36,8 @@ namespace DnfServerSwitcher {
         private bool _inhibitShutdown = false;
 
         private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
+        private SteamApiHelper _steamApi = new SteamApiHelper();
+        
         private MainViewModel? _mainVm;
         private MyTraceListenerFileLogger _fileLogger ;
         private bool _themeLoaded = false;
@@ -90,7 +93,9 @@ namespace DnfServerSwitcher {
             this.LoadTheme(defaultToNormalWpf:true);
             
             // initialize view model
-            this._mainVm = new MainViewModel();
+            this._mainVm = new MainViewModel() {
+                SteamApi = this._steamApi,
+            };
             this._mainVm.InitializeConfig(this._myCfg);
             
             // show windows
@@ -106,25 +111,20 @@ namespace DnfServerSwitcher {
             if (!this._myCfg.LoadFromIni() ||
                 string.IsNullOrWhiteSpace(this._myCfg.Dnf2011ExePath) ||
                 string.IsNullOrWhiteSpace(this._myCfg.Dnf2011SystemIniPath)) {
+                
                 // could not load config file.. try to auto detect paths!
                 Dnf2011Finder df = new Dnf2011Finder();
-                df.FindPaths();
+                df.FindPaths(this._steamApi);
                 
-                if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) ||
-                    df.Dnf2011SystemIni.Count == 0) {
+                if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) || string.IsNullOrWhiteSpace(df.Dnf2011SystemIni)) {
                     MessageBox.Show("Could not locate DNF files, please manually set the correct paths for the Duke Nukem Forever exe and the System.ini file!", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
 
                 if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) == false) {
                     this._myCfg.Dnf2011ExePath = df.Dnf2011Exe;
                 }
-                if (df.Dnf2011SystemIni.Count > 0) {
-                    if (df.Dnf2011SystemIni.Count > 1) {
-                        MessageBox.Show("Multiple Steam users with different System.ini files detected! Defaulting to first user... Please manually select the correct System.ini file if you are using a different user...", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
-                    // TODO... give some user prompt to select what user's data to use?...
-                    // for now just default to first value i guess...
-                    this._myCfg.Dnf2011SystemIniPath = df.Dnf2011SystemIni.First().Value;
+                if (string.IsNullOrWhiteSpace(df.Dnf2011SystemIni) == false) {
+                    this._myCfg.Dnf2011SystemIniPath = df.Dnf2011SystemIni;
                 }
                 
                 this._myCfg.SaveToIni();
@@ -167,6 +167,7 @@ namespace DnfServerSwitcher {
         }
 
         public void StartShutdown() {
+            this._steamApi.Shutdown();
             this._mainVm?.MyCfg.SaveToIni();
             this._fileLogger.Flush();
             this._fileLogger.Close();
