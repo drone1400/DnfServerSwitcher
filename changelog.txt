@@ -1,0 +1,33 @@
+--- V1.6
+- added menus
+- replaced some existing troubleshooting controls with menus
+- expanded troubleshooting window into more detailed help FAQ and about windows
+- added automatic player name binding and field of view setting via user.ini for Deprecated mode
+- added this changelog 
+
+--- V1.5
+- replaced theme components with DukNuk theme project submodule
+
+--- V1.4
+- more theme improvements
+- added difficulty selection to custom map launching
+
+--- V1.3.1
+- quick fix to theme bug causing crashes
+
+--- V1.3
+- internal and visual changes to theme
+- added Facepunch.Steamworks submodule for SteamAPI remote storage file syncing
+- steam remote storage file syncing should fix deprecated mode not launching correctly
+- added custom map launching
+
+--- V1.2
+- added cool ShadesOS inspired theme
+- fixed config not being saved when application closed
+
+--- V1.1
+- added github CI/CD autoreleases
+- added graphics
+
+--- V1.0
+- Initial release
