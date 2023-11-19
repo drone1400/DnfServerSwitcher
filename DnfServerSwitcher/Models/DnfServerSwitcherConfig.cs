@@ -53,7 +53,7 @@ namespace DnfServerSwitcher.Models {
             get => this._enableSystemIniSteamCloudSync;
             set => this.SetField(ref this._enableSystemIniSteamCloudSync, value);
         }
-        private bool _enableSystemIniSteamCloudSync = false;
+        private bool _enableSystemIniSteamCloudSync = true;
         public bool OpenLogWindowOnStartup { 
             get => this._openLogWindowOnStartup;
             set => this.SetField(ref this._openLogWindowOnStartup, value);
