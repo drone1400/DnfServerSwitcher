@@ -65,6 +65,30 @@ namespace DnfServerSwitcher {
             MyTrace.Global.AddListener(this._fileLogger);
             
             AppDomain.CurrentDomain.UnhandledException += this.UnhandledExceptionHandler;
+
+            this.LoadAdditionalCustomThemes();
+        }
+
+        private void LoadAdditionalCustomThemes() {
+            try {
+                string pathBase = Path.Combine(this.AppBaseDirectory, "Themes");
+
+                if (Directory.Exists(pathBase)) {
+                    DirectoryInfo dinfo = new DirectoryInfo(pathBase);
+                    FileInfo[] files = dinfo.GetFiles();
+                    foreach (FileInfo finfo in files) {
+                        if (finfo.Extension.ToLowerInvariant() == ".xaml") {
+                            try {
+                                ThemeManager.Default.LoadThemeColorsFromFile(finfo.FullName);
+                            } catch (Exception ex) {
+                                Glog.Error(MyTraceCategory.General, ex);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, ex);
+            }
         }
         
         private void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e) {

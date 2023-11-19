@@ -51,6 +51,14 @@
         <None Update="ThirdParty\dnWindow_LICENSE">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <Page Remove="Themes\Silver.xaml" />
+        <None Include="Themes\Silver.xaml">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <Page Remove="Themes\Gold.xaml" />
+        <None Include="Themes\Gold.xaml">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

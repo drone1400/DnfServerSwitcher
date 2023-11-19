@@ -19,6 +19,11 @@
                           Command="{Binding CmdQuit}"/>
             </MenuItem>
             <MenuItem Header="_Tools">
+                <MenuItem Header="Select next theme"
+                          Command="{Binding CmdThemeSelectNext}"/>
+                <MenuItem Header="Toggle theme on/off"
+                          Command="{Binding CmdThemeToggleMode}"/>
+                <Separator/>
                 <MenuItem Header="Delete remotecache.vdf file"
                           Command="{Binding CmdDeleteRemoteCacheVdf}"/>
                 <MenuItem Header="Auto-detect install paths"

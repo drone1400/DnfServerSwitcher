@@ -40,6 +40,9 @@ namespace DnfServerSwitcher.ViewModels {
         public DukCommand CmdShowHelpFaq { get; }
         public DukCommand CmdShowHelpAbout { get; }
         public DukCommand CmdShowHelpLogWindow { get; }
+        
+        public DukCommand CmdThemeToggleMode { get; }
+        public DukCommand CmdThemeSelectNext { get; }
 
         public NukCommand CmdLaunchNormal { get; }
         public NukCommand CmdLaunchDeprecated { get; }
@@ -61,6 +64,8 @@ namespace DnfServerSwitcher.ViewModels {
             this.CmdShowHelpFaq = new DukCommand(() => { (Application.Current as App)?.ShowHelpFaqWindow(); });
             this.CmdShowHelpAbout = new DukCommand(() => { (Application.Current as App)?.ShowHelpAboutWindow(); });
             this.CmdShowHelpLogWindow = new DukCommand(() => { (Application.Current as App)?.ShowLogWindow(); });
+            this.CmdThemeToggleMode = new DukCommand(() => { (Application.Current as App)?.ThemeToggleOnOff(); });
+            this.CmdThemeSelectNext = new DukCommand(() => { (Application.Current as App)?.ThemeSelectNext(); });
             
             this.CmdLaunchNormal = new NukCommand(this.LaunchDnf2011Normal) { CanExec = false };
             this.CmdLaunchDeprecated = new NukCommand(this.LaunchDnf2011Deprecated) { CanExec = false };
