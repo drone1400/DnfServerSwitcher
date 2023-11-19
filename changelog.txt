@@ -3,6 +3,8 @@
 - replaced some existing troubleshooting controls with menus
 - expanded troubleshooting window into more detailed help FAQ and about windows
 - added automatic player name binding and field of view setting via user.ini for Deprecated mode
+- added custom theme loading on startup
+- steam cloud sync is enabled by default now when launching the app for the first time
 - added this changelog 
 
 --- V1.5
