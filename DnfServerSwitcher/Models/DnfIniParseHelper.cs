@@ -9,7 +9,7 @@ using DnfServerSwitcher.Models.Trace;
 namespace DnfServerSwitcher.Models {
     public static class DnfIniParseHelper {
         
-        public static IniDocument? ParseDnf2011SystemIni(string filePath) {
+        public static IniDocument? ParseDnf2011Ini(string filePath) {
             // NOTE: DNF2011 uses UTF-16 encoding with no byte order mark for the system.ini file!!!...
             // Also important to note, the system.ini is a non-standard ini format!
             // ------------
@@ -50,51 +50,44 @@ namespace DnfServerSwitcher.Models {
             }
         }
 
-        public static bool WriteDnf2011SystemIni(string filePath, IniDocument doc) {
+        public static bool WriteDnf2011Ini(string filePath, IniDocument doc) {
             // NOTE: DNF2011 uses UTF-16 encoding with no byte order mark for the system.ini file!!!...
             // I know I'm repeating myself, but the file must be in this exact format or the game WILL crash!
             // if there is a byte order mark, the game will crash, even if the file is in UTF-16 encoding!
             // so we write the ini to a string builder, encode that to a byte buffer
             // and then write the bytes to the file without the BOM at the start!
             
-            string backupPath = filePath + ".dss.bak";
+            string tempFilePath = filePath + ".tmp";
             
             try {
-                if (File.Exists(filePath)) {
-                    if (File.Exists(backupPath) == false) {
-                        try {
-                            File.Copy(filePath, backupPath);
-                        } catch (Exception ex) {
-                            Glog.Error(MyTraceCategory.General, "This is awkward, an error has occured trying to make a backup of the original System.ini...", ex);
-                        }
-                    }
-                }
-                
+               
                 StringBuilder sb = new StringBuilder(1048576); // initialize with 1024 * 1024 capacity, should be enough to hold all the ini text!
                 doc.WriteToStringBuilder(sb, "\r\n");
 
                 byte[] rawUtf16Bytes = Encoding.Unicode.GetBytes(sb.ToString());
 
-                using FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                using FileStream fs = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write);
                 fs.Write(rawUtf16Bytes, 0, rawUtf16Bytes.Length);
 
                 // NOTE: DNF2011 uses a double null byte termination for the file...
                 // from what I can determine, the game doesn't crash if they aren't there, but leave them there anyway
                 fs.WriteByte(0x00);
                 fs.WriteByte(0x00);
-
-                return true;
             } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.General, "Something went terribly wrong saving the System.ini file! Trying to restore backup...", ex);
-                try {
-                    if (File.Exists(backupPath)) {
-                        File.Copy(backupPath, filePath, overwrite: true);
-                    }
-                } catch (Exception ex2) {
-                    Glog.Error(MyTraceCategory.General, "This is awkward, an error has occured trying to restore a backup of the original System.ini...", ex2);
-                }
+                Glog.Error(MyTraceCategory.General, "Something went wrong saving the System.ini file!", ex);
                 return false;
             }
+
+            // check if file was created successfully
+            if (File.Exists(tempFilePath) ) {
+                // remove old file
+                if (File.Exists(filePath)) {
+                    File.Delete(filePath);
+                }
+                File.Move(tempFilePath, filePath);
+                return true;
+            }
+            return false;
         }
     }
 }

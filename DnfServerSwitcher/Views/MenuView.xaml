@@ -19,13 +19,21 @@
                           Command="{Binding CmdQuit}"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="WIP..."/>
+                <MenuItem Header="Delete remotecache.vdf file"
+                          Command="{Binding CmdDeleteRemoteCacheVdf}"/>
+                <MenuItem Header="Auto-detect install paths"
+                          Command="{Binding CmdAutoDetectInstallPaths}"/>
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_Help - FAQ"
                           Command="{Binding CmdShowHelpFaq}"/>
                 <MenuItem Header="_About"
                           Command="{Binding CmdShowHelpAbout}"/>
+                <Separator/>
+                <MenuItem Header="Show log window on startup" IsCheckable="True"
+                          IsChecked="{Binding OpenLogWindowOnStartup}"/>
+                <MenuItem Header="Show log window now"
+                          Command="{Binding CmdShowHelpLogWindow}"/>
             </MenuItem>
         </Menu>
     </Grid>

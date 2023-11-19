@@ -68,9 +68,27 @@ namespace DnfServerSwitcher.Models {
                 }
             }
         }
-        private string _theme = "";
+        private string _theme = "Default Blue";
 
-        public bool IsDefaultWpfTheme => string.IsNullOrWhiteSpace(this.Theme); 
+        public bool IsDefaultWpfTheme => string.IsNullOrWhiteSpace(this.Theme);
+
+        public int UserFieldOfView {
+            get => this._userFieldOfView;
+            set => this.SetField(ref this._userFieldOfView, value);
+        }
+        private int _userFieldOfView = 80;
+
+        public string DeprecatedPlayerName {
+            get => this._deprecatedPlayerName;
+            set => this.SetField(ref this._deprecatedPlayerName, value);
+        }
+        private string _deprecatedPlayerName = "Mysterious Stranger";
+        
+        public string DeprecatedPlayerNameHotkey {
+            get => this._deprecatedPlayerNameHotkey;
+            set => this.SetField(ref this._deprecatedPlayerNameHotkey, value);
+        }
+        private string _deprecatedPlayerNameHotkey = "F11";
 
         public void SaveToIni() {
             try {
@@ -81,6 +99,10 @@ namespace DnfServerSwitcher.Models {
                 data["Features"]["EnableSystemIniSteamCloudSync"].SetSimpleValue(this.EnableSystemIniSteamCloudSync ? "true" : "false");
                 data["Features"]["OpenLogWindowOnStartup"].SetSimpleValue(this.OpenLogWindowOnStartup ? "true" : "false");
                 data["Theme"]["ThemeName"].SetSimpleValue(this.Theme);
+                
+                data["UserIni"]["UserFieldOfView"].SetSimpleValue(this.UserFieldOfView.ToString());
+                data["UserIni"]["DeprecatedPlayerName"].SetSimpleValue(this.DeprecatedPlayerName);
+                data["UserIni"]["DeprecatedPlayerNameHotkey"].SetSimpleValue(this.DeprecatedPlayerNameHotkey);
 
                 string iniPath = Path.Combine(((App)Application.Current).AppBaseDirectory, INI_FILE_NAME);
                 data.WriteToFile(iniPath, Encoding.UTF8);
@@ -117,10 +139,25 @@ namespace DnfServerSwitcher.Models {
                     string[] validThemes = ThemeManager.Default.GetAvailableThemeColors();
                     this.Theme = validThemes.Contains(theme) ? theme : "";
                     
+                    string userFovStr = doc["UserIni"]["UserFieldOfView"].GetSimpleValue();
+                    string depName = doc["UserIni"]["DeprecatedPlayerName"].GetSimpleValue();
+                    string depHotkey = doc["UserIni"]["DeprecatedPlayerNameHotkey"].GetSimpleValue();
+
+                    if (int.TryParse(userFovStr, out int userFov)) {
+                        this.UserFieldOfView = userFov;
+                    }
+                    if (string.IsNullOrWhiteSpace(depName) == false) {
+                        this.DeprecatedPlayerName = depName;
+                    }
+                    if (string.IsNullOrWhiteSpace(depHotkey) == false) {
+                        this.DeprecatedPlayerNameHotkey = depHotkey;
+                    }
+                    
                     Glog.Message(MyTraceCategory.Config, $"Done reading config file from path={iniPath}");
                 } catch (Exception) {
                     this.Dnf2011ExePath = "";
                     this.Dnf2011SystemIniPath = "";
+                    this.Dnf2011ExeCommandLineArgs = "";
                     return false;
                 }
                 return true;

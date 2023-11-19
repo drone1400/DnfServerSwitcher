@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows;
 using DnfServerSwitcher.Models;
 using DnfServerSwitcher.Models.SteamApi;
 using DnfServerSwitcher.Models.Trace;
 using DnfServerSwitcher.ViewModels;
-using DnfServerSwitcher.Views;
 using DnfServerSwitcher.Views.NukedWindows;
 using DnfServerSwitcher.Views.Windows;
 using DukNuk.Wpf.Helpers;
@@ -26,7 +22,7 @@ namespace DnfServerSwitcher {
         public const int DNF2011_STEAMAPPID = 57900;
 
         public string AppBaseDirectory { get; } = AppDomain.CurrentDomain.BaseDirectory;
-        public string AppVersion { get; } = "";
+        public string AppVersion { get; }
 
 
         private Window? _mainWindow;
@@ -37,8 +33,7 @@ namespace DnfServerSwitcher {
 
         private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
         private SteamApiHelper _steamApi = new SteamApiHelper();
-        
-        private MainViewModel? _mainVm;
+        private MainViewModel _mainVm = new MainViewModel();
         private MyTraceListenerFileLogger _fileLogger ;
         private bool _themeLoaded = false;
         
@@ -93,10 +88,8 @@ namespace DnfServerSwitcher {
             this.LoadTheme(defaultToNormalWpf:true);
             
             // initialize view model
-            this._mainVm = new MainViewModel() {
-                SteamApi = this._steamApi,
-            };
-            this._mainVm.InitializeConfig(this._myCfg);
+            this._mainVm.SteamApi = this._steamApi;
+            this._mainVm.LoadFromConfig(this._myCfg);
             
             // show windows
             if (this._myCfg.OpenLogWindowOnStartup) {
@@ -152,7 +145,7 @@ namespace DnfServerSwitcher {
             try {
                 ThemeManager.Default.FreeFromAppResources();
                 this._themeLoaded = false;
-             } catch (Exception ex) {
+            } catch (Exception ex) {
                 Glog.Error(MyTraceCategory.General, "Error unloading theme...", ex);
             }
         }
@@ -167,17 +160,23 @@ namespace DnfServerSwitcher {
         }
 
         public void StartShutdown() {
+            this._logWindow?.Close();
+            this._aboutWindow?.Close();
+            this._faqWindow?.Close();
+            
             this._steamApi.Shutdown();
-            this._mainVm?.MyCfg.SaveToIni();
+            this._mainVm.SaveToConfig(this._myCfg);
+            this._myCfg.SaveToIni();
+            
             this._fileLogger.Flush();
             this._fileLogger.Close();
-            this._logWindow?.Close();
+            
             this.Shutdown();
         }
         
         #region showing windows
         
-        private void ShowLogWindow() {
+        public void ShowLogWindow() {
             if (this._logWindow != null) return;
             
             this._logWindow = this._myCfg.IsDefaultWpfTheme ? new LogWindow() : new NukedLogWindow();

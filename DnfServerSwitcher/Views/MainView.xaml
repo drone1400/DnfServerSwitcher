@@ -4,19 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:DnfServerSwitcher.Views"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:viewModels="clr-namespace:DnfServerSwitcher.ViewModels"
+             xmlns:controls="clr-namespace:DukNuk.Wpf.Controls;assembly=DukNukWpf"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}">
-    <Grid Margin="16">
+    <Grid Margin="14">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
 
@@ -29,7 +27,7 @@
 
             <Image Grid.Row="0" Grid.Column="1"
                    Source="../Resources/DNFSwitcherLogo.png"
-                   Height="140"
+                   Height="130"
                    Margin="6" />
 
             <Button Grid.Column="0"
@@ -83,14 +81,14 @@
             </Button>
         </Grid>
 
-
-        <Grid Grid.Row="1" Margin="0,10">
+        <Grid Grid.Row="1" Margin="0,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -109,16 +107,24 @@
             <Button Grid.Row="1" Grid.Column="2" Content="Browse"
                     Width="80"
                     Command="{Binding CmdBrowseExe}" />
+            
+            <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                      Width="300" Height="30"
+                      Margin="2"
+                      HorizontalAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      IsChecked="{Binding EnableSteamCloudSync}"
+                      Content="Enable updating system.ini in the SteamCloud" />
         </Grid>
 
-        <Grid Grid.Row="5">
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <GroupBox Grid.Column="0" Header="Custom Maps"
-                      Margin="4">
+                      Margin="2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -151,38 +157,45 @@
                 </Grid>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="Troubleshooting Tools"
-                      Margin="4">
+            <GroupBox Grid.Column="1" Header="User.ini settings"
+                      Margin="2">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <Label Grid.Row="1" Content="Deprecated Player Name:"/>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Content="Hotkey"/>
+                        <Label Grid.Row="1" Grid.Column="0" Content="Name"/>
+                        <local:HotkeyGrabber Grid.Row="0" Grid.Column="1" 
+                                             IsEnabled="{Binding IsValidDnf2011UserIni}"
+                                             Hotkey="{Binding DeprecatedPlayerNameHotkey, Mode=TwoWay}"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" 
+                                 Text="{Binding DeprecatedPlayerName}"/>
+                    </Grid>
+                    
+                    <Label Grid.Row="3" Content="Field of View:"/>
+                    <controls:NukCounterInt 
+                        Grid.Row="4"
+                        ValueMin="50"
+                        ValueMax="150"
+                        Value="{Binding UserFieldOfView}"/>
+                        
 
-                    <Button Grid.Row="0" Grid.Column="0"
-                            Width="220" Height="30"
-                            Margin="8"
-                            HorizontalAlignment="Center"
-                            Content="Show Help Info"
-                            Command="{Binding CmdShowHelpFaq}" />
-
-                    <Button Grid.Row="1" Grid.Column="0"
-                            Width="220" Height="30"
-                            Margin="8"
-                            HorizontalAlignment="Center"
-                            Content="Delete remotecache.vdf file"
-                            Command="{Binding CmdDeleteRemoteCacheVdf}" />
-
-                    <CheckBox Grid.Row="2" Grid.Column="0"
-                              Width="300" Height="30"
-                              Margin="8"
-                              HorizontalAlignment="Center"
-                              VerticalContentAlignment="Center"
-                              IsChecked="{Binding EnableSystemIniSteamCloudSync}"
-                              Content="Enable updating system.ini in the SteamCloud" />
-                </Grid>
+                    </Grid>
             </GroupBox>
         </Grid>
 

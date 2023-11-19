@@ -76,15 +76,15 @@ namespace DnfServerSwitcher.Models.SteamApi {
             }
         }
 
-        public bool WriteSystemIni(string localFilePath) {
+        public bool WriteFileToRemote(string localFileName, string remoteFileName) {
             try {
                 this.CheckInitializeClient();
 
-                byte[] systemIniBytes = File.ReadAllBytes(localFilePath);
-                Glog.Message(MyTraceCategory.Steamworks, $"Read {systemIniBytes.Length} bytes from local system.ini file at path={localFilePath}");
-
-                SteamRemoteStorage.FileWrite("system.ini", systemIniBytes);
-                Glog.Message(MyTraceCategory.Steamworks, $"Wrote system.ini file to Steam Remote Storage!");
+                byte[] fileBytes = File.ReadAllBytes(localFileName);
+                Glog.Message(MyTraceCategory.Steamworks, $"Read {fileBytes.Length} bytes from local system.ini file at path={localFileName}");
+                
+                SteamRemoteStorage.FileWrite(remoteFileName, fileBytes);
+                Glog.Message(MyTraceCategory.Steamworks, $"Wrote {remoteFileName} file to Steam Remote Storage!");
 
                 return true;
             } catch (Exception ex) {

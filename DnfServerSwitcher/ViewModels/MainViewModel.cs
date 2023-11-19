@@ -18,6 +18,7 @@ using DnfServerSwitcher.Models.Trace;
 using DnfServerSwitcher.Views;
 using DukNuk.Wpf.Mvvm;
 using Microsoft.Win32;
+using Steamworks;
 
 namespace DnfServerSwitcher.ViewModels {
     public class MainViewModel : INotifyPropertyChanged {
@@ -32,66 +33,182 @@ namespace DnfServerSwitcher.ViewModels {
             return true;
         }
 
+        #region Commands
+
+        
+        public DukCommand CmdQuit { get; }
+        public DukCommand CmdShowHelpFaq { get; }
+        public DukCommand CmdShowHelpAbout { get; }
+        public DukCommand CmdShowHelpLogWindow { get; }
+
+        public NukCommand CmdLaunchNormal { get; }
+        public NukCommand CmdLaunchDeprecated { get; }
+        public DukCommand CmdBrowseExe { get; }
+        public DukCommand CmdBrowseSystemIni { get; }
+        public NukCommand CmdDeleteRemoteCacheVdf { get; }
+        public DukCommand CmdAutoDetectInstallPaths { get; }
+
+        public DukCommand CmdOpenDnfMapsWebsite { get; }
+        public NukCommand CmdQuickPlayMap { get; }
+
+        #endregion
+
         public MainViewModel() {
             this.AppVersion = ((Application.Current as App)?.AppVersion) ?? "V - Unknown?";
+            
+            // initialize commands...
+            this.CmdQuit = new DukCommand(() => { (Application.Current as App)?.StartShutdown(); } ) ;
+            this.CmdShowHelpFaq = new DukCommand(() => { (Application.Current as App)?.ShowHelpFaqWindow(); });
+            this.CmdShowHelpAbout = new DukCommand(() => { (Application.Current as App)?.ShowHelpAboutWindow(); });
+            this.CmdShowHelpLogWindow = new DukCommand(() => { (Application.Current as App)?.ShowLogWindow(); });
+            
+            this.CmdLaunchNormal = new NukCommand(this.LaunchDnf2011Normal) { CanExec = false };
+            this.CmdLaunchDeprecated = new NukCommand(this.LaunchDnf2011Deprecated) { CanExec = false };
+            this.CmdBrowseExe = new DukCommand(this.BrowseDnf2011Exe);
+            this.CmdBrowseSystemIni = new DukCommand(this.BrowseDnf2011SystemIni);
+            
+            this.CmdOpenDnfMapsWebsite = new DukCommand(this.OpenDnfMapWebsite);
+            this.CmdQuickPlayMap = new NukCommand(this.OpenDnfMap);
+            
+            this.CmdDeleteRemoteCacheVdf = new NukCommand(this.DeleteRemoteCacheVdf);
+            this.CmdAutoDetectInstallPaths = new DukCommand(this.AutoDetectInstallPaths);
+
+
         }
+        
+        #region path settings
 
-        public DnfServerSwitcherConfig MyCfg { get => this._myCfg; }
-        private DnfServerSwitcherConfig _myCfg = new DnfServerSwitcherConfig();
-
-        public bool EnableSystemIniSteamCloudSync {
-            get => this._myCfg.EnableSystemIniSteamCloudSync;
-            set {
-                if (this._myCfg.EnableSystemIniSteamCloudSync != value) {
-                    this._myCfg.EnableSystemIniSteamCloudSync = value;
-                    this.OnPropertyChanged();
-                }
-            }
+        public bool OpenLogWindowOnStartup {
+            get => this._openLogWindowOnStartup;
+            set => this.SetField(ref this._openLogWindowOnStartup, value);
         }
+        private bool _openLogWindowOnStartup = false;
 
+        public bool EnableSteamCloudSync {
+            get => this._enableSteamCloudSync;
+            set => this.SetField(ref this._enableSteamCloudSync, value);
+        }
+        private bool _enableSteamCloudSync = false;
+        
         public string Dnf2011ExePath {
-            get => this._myCfg.Dnf2011ExePath;
+            get => this._dnf2011ExePath;
             set {
-                if (this._myCfg.Dnf2011ExePath != value) {
-                    this._myCfg.Dnf2011ExePath = value;
-                    this.OnPropertyChanged();
-                    this._cmdLaunchNormal?.OnCanExecuteChanged();
-                    this._cmdLaunchDeprecated?.OnCanExecuteChanged();
-                    this._cmdQuickOpenMap?.OnCanExecuteChanged();
-                }
+                this.SetField(ref this._dnf2011ExePath, value);
+                // recalculate paths when property is set
+                this.RefreshDnf2011Exe();
+                this.RefreshDnf2011MapsDirectory();
+                this.RefreshCommands();
             }
         }
+        private string _dnf2011ExePath = ""; 
 
         public string Dnf2011ExeCommandLineArgs {
-            get => this._myCfg.Dnf2011ExeCommandLineArgs;
-            set {
-                if (this._myCfg.Dnf2011ExeCommandLineArgs != value) {
-                    this._myCfg.Dnf2011ExeCommandLineArgs = value;
-                    this.OnPropertyChanged();
-                    //this._cmdLaunchNormal?.OnCanExecuteChanged();
-                    //this._cmdLaunchDeprecated?.OnCanExecuteChanged();
-                }
-            }
+            get => this._dnf2011ExeCommandLineArgs;
+            set => this.SetField(ref this._dnf2011ExeCommandLineArgs, value);
         }
+        private string _dnf2011ExeCommandLineArgs = "";
 
         public string Dnf2011SystemIniPath {
-            get => this._myCfg.Dnf2011SystemIniPath;
+            get => this._dnf2011SystemIniPath;
             set {
-                if (this._myCfg.Dnf2011SystemIniPath != value) {
-                    this._myCfg.Dnf2011SystemIniPath = value;
-                    this.OnPropertyChanged();
-                    this._cmdLaunchNormal?.OnCanExecuteChanged();
-                    this._cmdLaunchDeprecated?.OnCanExecuteChanged();
-                    this._cmdDeleteRemoteCacheVdf?.OnCanExecuteChanged();
-                }
+                this.SetField(ref this._dnf2011SystemIniPath, value);
+                this.RefreshDnf2011SystemIni();;
+                this.RefreshDnf2011UserIni();
+                this.RefreshRemoteCacheVdf();
+                this.RefreshCommands();
             }
         }
+        private string _dnf2011SystemIniPath = "";
+
+        public string Dnf2011MapsDirectory {
+            get => this._dnf2011MapsDirectory;
+            private set => this.SetField(ref this._dnf2011MapsDirectory, value);
+        }
+        private string _dnf2011MapsDirectory = "";
+
+        public string Dnf2011UserIniPath {
+            get => this._dnf2011UserIniPath;
+            private set => this.SetField(ref this._dnf2011UserIniPath, value);
+        }
+        private string _dnf2011UserIniPath = "";
+        
+        public string Dnf2011RemoteCacheVdf {
+            get => this._dnf2011RemoteCacheVdf;
+            private set => this.SetField(ref this._dnf2011RemoteCacheVdf, value);
+        }
+        private string _dnf2011RemoteCacheVdf = "";
+
+        public bool IsValidDnf2011Exe {
+            get => this._isValidDnf2011Exe;
+            private set => this.SetField(ref this._isValidDnf2011Exe, value);
+        }
+        private bool _isValidDnf2011Exe = false;
+        
+        public bool IsValidDnf2011MapsDirectory {
+            get => this._isValidDnf2011MapsDirectory;
+            private set => this.SetField(ref this._isValidDnf2011MapsDirectory, value);
+        }
+        private bool _isValidDnf2011MapsDirectory = false;
+        
+        public bool IsValidDnf2011SystemIni {
+            get => this._isValidDnf2011SystemIni;
+            private set => this.SetField(ref this._isValidDnf2011SystemIni, value);
+        }
+        private bool _isValidDnf2011SystemIni = false;
+        
+        public bool IsValidDnf2011UserIni {
+            get => this._isValidDnf2011UserIni;
+            private set => this.SetField(ref this._isValidDnf2011UserIni, value);
+        }
+        private bool _isValidDnf2011UserIni = false;
+        
+        public bool IsValidDnf2011RemoteCacheVdf {
+            get => this._isValidDnf2011RemoteCacheVdf;
+            private set => this.SetField(ref this._isValidDnf2011RemoteCacheVdf, value);
+        }
+        private bool _isValidDnf2011RemoteCacheVdf = false;
+        
+        
+        
+        
+        #endregion
+        
+        #region UserIni settings
+
+        public int UserFieldOfView {
+            get => this._userFieldOfView;
+            set => this.SetField(ref this._userFieldOfView, value);
+        }
+        private int _userFieldOfView = 0;
+        
+        public string DeprecatedPlayerName {
+            get => this._deprecatedPlayerName;
+            set => this.SetField(ref this._deprecatedPlayerName, value);
+        }
+        private string _deprecatedPlayerName = "";
+        
+        public Key DeprecatedPlayerNameHotkey {
+            get => this._deprecatedPlayerNameHotkey;
+            set => this.AttemptToSetHotkey(value);
+        }
+        private Key _deprecatedPlayerNameHotkey = Key.None;
+        
+        #endregion
 
         public string AppVersion {
             get => this._appVersion;
             private set => this.SetField(ref this._appVersion, value);
         }
         private string _appVersion = "";
+        
+        
+        public SteamApiHelper? SteamApi {
+            get => this._steamApi;
+            set => this.SetField(ref this._steamApi, value);
+        }
+        private SteamApiHelper? _steamApi = null;
+        
+        private DnfHotkeyHelper _hotkeyHelper = new DnfHotkeyHelper();
 
         public List<GameDifficultySelection> AvailableDifficulties { get; } = new List<GameDifficultySelection>() {
             new GameDifficultySelection("Piece of Cake", 0),
@@ -105,101 +222,161 @@ namespace DnfServerSwitcher.ViewModels {
         }
         private int _selectedMapDifficulty = 2;
 
-        public ICommand CmdLaunchNormal => this._cmdLaunchNormal ??= new DukCommand(this.LaunchDnf2011Normal, this.CanLaunch);
-        private DukCommand? _cmdLaunchNormal;
 
-        public ICommand CmdLaunchDeprecated => this._cmdLaunchDeprecated ??= new DukCommand(this.LaunchDnf2011Deprecated, this.CanLaunch);
-        private DukCommand? _cmdLaunchDeprecated;
-
-        public ICommand CmdQuit => this._cmdQuit ??= new DukCommand(() => {
-            (Application.Current as App)?.StartShutdown();
-        }, () => true);
-        private DukCommand? _cmdQuit;
-
-        public ICommand CmdBrowseExe => this._cmdBrowseExe ??= new DukCommand(this.BrowseDnf2011Exe, () => true);
-        private DukCommand? _cmdBrowseExe;
-
-        public ICommand CmdBrowseSystemIni => this._cmdBrowseSystemIni ??= new DukCommand(this.BrowseDnf2011SystemIni, () => true);
-        private DukCommand? _cmdBrowseSystemIni;
-
-        public ICommand CmdShowHelpFaq => this._cmdShowHelpFaq ??= new DukCommand(() => {
-            (Application.Current as App)?.ShowHelpFaqWindow();
-        }, () => true);
-        private DukCommand? _cmdShowHelpFaq;
         
-        public ICommand CmdShowHelpAbout => this._cmdShowHelpAbout ??= new DukCommand(() => {
-            (Application.Current as App)?.ShowHelpAboutWindow();
-        }, () => true);
-        private DukCommand? _cmdShowHelpAbout;
-
-        public ICommand CmdDeleteRemoteCacheVdf => this._cmdDeleteRemoteCacheVdf ??= new DukCommand(this.DeleteRemoteCacheVdf, this.CanDeleteRemoteCacheVdf);
-        private DukCommand? _cmdDeleteRemoteCacheVdf;
-
-        public ICommand CmdOpenDnfMapsWebsite => this._cmdOpenDnfMapsWebsite ??= new DukCommand(this.OpenDnfMapWebsite, () => true);
-        private DukCommand? _cmdOpenDnfMapsWebsite;
-
-        public ICommand CmdQuickPlayMap => this._cmdQuickOpenMap ??= new DukCommand(this.OpenDnfMap, this.CanOpenDnfMap);
-        private DukCommand? _cmdQuickOpenMap;
-
-        public SteamApiHelper? SteamApi {
-            get => this._steamApi;
-            set => this.SetField(ref this._steamApi, value);
-        }
-        private SteamApiHelper? _steamApi = null;
-        
-        public void InitializeConfig(DnfServerSwitcherConfig cfg) {
-            this._myCfg = cfg;
-            this._cmdLaunchNormal?.OnCanExecuteChanged();
-            this._cmdLaunchDeprecated?.OnCanExecuteChanged();
-            this._cmdBrowseExe?.OnCanExecuteChanged();
-            this._cmdBrowseSystemIni?.OnCanExecuteChanged();
-            this._cmdShowHelpFaq?.OnCanExecuteChanged();
-            this._cmdDeleteRemoteCacheVdf?.OnCanExecuteChanged();
-            this._cmdOpenDnfMapsWebsite?.OnCanExecuteChanged();
-            this._cmdQuickOpenMap?.OnCanExecuteChanged();
+        public void LoadFromConfig(DnfServerSwitcherConfig cfg) {
+            this.EnableSteamCloudSync = cfg.EnableSystemIniSteamCloudSync;
+            this.OpenLogWindowOnStartup = cfg.OpenLogWindowOnStartup;
+            
+            // path settings
+            this.Dnf2011ExePath = cfg.Dnf2011ExePath;
+            this.Dnf2011ExeCommandLineArgs = cfg.Dnf2011ExeCommandLineArgs;
+            this.Dnf2011SystemIniPath = cfg.Dnf2011SystemIniPath;
+           
+            // user ini settings
+            this.UserFieldOfView = cfg.UserFieldOfView;
+            this.DeprecatedPlayerName = cfg.DeprecatedPlayerName;
+            Key key = DnfHotkeyHelper.GetKeyFromIniString(cfg.DeprecatedPlayerNameHotkey);
+            this.DeprecatedPlayerNameHotkey = key;
         }
 
-        private bool CanLaunch() {
+        public void SaveToConfig(DnfServerSwitcherConfig cfg) {
+            cfg.EnableSystemIniSteamCloudSync = this.EnableSteamCloudSync;
+            cfg.OpenLogWindowOnStartup = this.OpenLogWindowOnStartup;
+            
+            // path settings
+            cfg.Dnf2011ExePath = this.Dnf2011ExePath;
+            cfg.Dnf2011ExeCommandLineArgs = this.Dnf2011ExeCommandLineArgs;
+            cfg.Dnf2011SystemIniPath = this.Dnf2011SystemIniPath;
+            
+            // user ini settings
+            cfg.UserFieldOfView = this.UserFieldOfView;
+            cfg.DeprecatedPlayerName = this.DeprecatedPlayerName;
+            string hotkey = DnfHotkeyHelper.GetKeyIniString(this.DeprecatedPlayerNameHotkey);
+            cfg.DeprecatedPlayerNameHotkey = hotkey;
+        }
+        
+        private void RefreshDnf2011Exe() {
             try {
-                if (!File.Exists(this.Dnf2011ExePath) ||
-                    !File.Exists(this.Dnf2011SystemIniPath)) return false;
-                return true;
+                this.IsValidDnf2011Exe = File.Exists(this.Dnf2011ExePath);
             } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.Command, ex);
-                return false;
+                Glog.Error(MyTraceCategory.General, ex);
+                this.IsValidDnf2011Exe = false;
             }
         }
 
-        private bool CheckExeExists() {
+        private void RefreshDnf2011MapsDirectory() {
             try {
-                if (File.Exists(this.Dnf2011ExePath) == false) {
+                this.Dnf2011MapsDirectory = "";
+                if (string.IsNullOrWhiteSpace(this.Dnf2011ExePath) == false) {
+                    FileInfo finfo = new FileInfo(this.Dnf2011ExePath);
+                    if (finfo.Directory?.Parent != null) {
+                        this.Dnf2011MapsDirectory = Path.Combine(finfo.Directory.Parent.FullName, "Maps");
+                    }
+                }
+                
+                this.IsValidDnf2011MapsDirectory = Directory.Exists(this.Dnf2011MapsDirectory);
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, ex);
+                this.IsValidDnf2011MapsDirectory = false;
+            }
+        }
+        
+        private void RefreshDnf2011SystemIni() {
+            try {
+                this.IsValidDnf2011SystemIni = File.Exists(this.Dnf2011SystemIniPath);
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, ex);
+                this.IsValidDnf2011SystemIni = false;
+            }
+        }
+
+        private void RefreshDnf2011UserIni() {
+            try {
+                this.Dnf2011UserIniPath = "";
+                if (string.IsNullOrWhiteSpace(this.Dnf2011SystemIniPath) == false) {
+                    FileInfo finfo = new FileInfo(this.Dnf2011SystemIniPath);
+                    if (finfo.Directory != null) {
+                        this.Dnf2011UserIniPath = Path.Combine( finfo.Directory.FullName, "user.ini");
+                    }
+                }
+
+                this.IsValidDnf2011UserIni = File.Exists(this.Dnf2011UserIniPath);
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, ex);
+                this.IsValidDnf2011UserIni = false;
+            }
+        }
+
+        private void RefreshRemoteCacheVdf() {
+            try {
+
+                this.IsValidDnf2011SystemIni = File.Exists(this.Dnf2011SystemIniPath);
+
+                this.Dnf2011UserIniPath = "";
+                this.Dnf2011RemoteCacheVdf = "";
+                if (string.IsNullOrWhiteSpace(this.Dnf2011SystemIniPath) == false) {
+                    FileInfo finfo = new FileInfo(this.Dnf2011SystemIniPath);
+                    if (finfo.Directory != null) {
+                        this.Dnf2011UserIniPath = Path.Combine( finfo.Directory.FullName, "user.ini");
+                    }
+                    if (finfo.Directory?.Parent != null) {
+                        this.Dnf2011RemoteCacheVdf = Path.Combine(finfo.Directory.Parent.FullName, "remotecache.vdf");
+                    }
+                }
+
+                this.IsValidDnf2011UserIni = File.Exists(this.Dnf2011UserIniPath);
+                
+                
+                this.IsValidDnf2011RemoteCacheVdf = File.Exists(this.Dnf2011RemoteCacheVdf);
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.General, ex);
+                this.IsValidDnf2011SystemIni = false;
+                this.IsValidDnf2011UserIni = false;
+            }
+        }
+
+        private void RefreshCommands() {
+            this.CmdLaunchNormal.CanExec = this.IsValidDnf2011Exe && this.IsValidDnf2011SystemIni;
+            this.CmdLaunchDeprecated.CanExec = this.IsValidDnf2011Exe && this.IsValidDnf2011SystemIni;
+            this.CmdQuickPlayMap.CanExec = this.IsValidDnf2011Exe && this.IsValidDnf2011MapsDirectory;
+            this.CmdDeleteRemoteCacheVdf.CanExec = this.IsValidDnf2011RemoteCacheVdf;
+        }
+        
+        #region Launch game
+        
+        private bool LaunchValidateContinue() {
+            try {
+                this.RefreshDnf2011Exe();
+                this.RefreshDnf2011SystemIni();
+                this.RefreshDnf2011UserIni();
+                this.RefreshCommands();
+
+                if (this.IsValidDnf2011Exe == false) {
                     MessageBox.Show(
                         "DukeForever.exe not found! Make sure the path",
-                        "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
-                return true;
-            } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.Command, ex);
-                return false;
-            }
-        }
-        private bool? CheckSystemIniExists() {
-            try {
-                if (File.Exists(this.Dnf2011SystemIniPath) == false) {
-                    if (
-                        MessageBox.Show(
+
+                if (this.IsValidDnf2011SystemIni == false) {
+                    if (MessageBox.Show(
                             "system.ini file not found! Attempt to launch game anyway?",
-                            "Error",
-                            MessageBoxButton.YesNo,
-                            MessageBoxImage.Error)
-                        == MessageBoxResult.No) return false;
-                    return null;
+                            "Error", MessageBoxButton.YesNo, MessageBoxImage.Error)
+                        == MessageBoxResult.No) 
+                        return false;
                 }
+                
+                if (this.IsValidDnf2011UserIni == false) {
+                    if (MessageBox.Show(
+                            "user.ini file not found! Attempt to launch game anyway?",
+                            "Error", MessageBoxButton.YesNo, MessageBoxImage.Error)
+                        == MessageBoxResult.No) 
+                        return false;
+                }
+
                 return true;
-            } catch (Exception ex) {
+            }  catch (Exception ex) {
                 Glog.Error(MyTraceCategory.Command, ex);
                 return false;
             }
@@ -207,47 +384,16 @@ namespace DnfServerSwitcher.ViewModels {
 
         private void LaunchDnf2011Normal() {
             try {
-                if (!this.CheckExeExists()) return;
+                if (!this.LaunchValidateContinue())
+                    return;
 
-                if (this.CheckSystemIniExists() == true) {
-                    IniDocument? data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
-                    if (data == null) {
-                        MessageBox.Show("An error has occurred parsing the System.ini file, Duke will not be launched...",  "ERROR parsing System.ini!", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (this.IsValidDnf2011SystemIni) {
+                    if (!DnfSystemIniHelper.SetNormalMode(this.Dnf2011SystemIniPath))
                         return;
-                    }
-
-                    Glog.Message(MyTraceCategory.General, $"Successfully parsed system.ini at path={this.Dnf2011SystemIniPath}");
-
-                    data["Engine.Engine"]["NetworkDevice"].SetSimpleValue("Engine.AgentNetDriver");
-                    // set net speeds and client rates to recommended values
-                    data["Engine.Player"]["ConfiguredInternetSpeed"].SetSimpleValue("20000");
-                    data["Engine.Player"]["ConfiguredLanSpeed"].SetSimpleValue("20000");
-                    data["Engine.TcpNetDriver"]["MaxClientRate"].SetSimpleValue("20000");
-                    data["Engine.AgentNetDriver"]["MaxClientRate"].SetSimpleValue("20000");
-
-                    Glog.Message(MyTraceCategory.General, new List<string>() {
-                        "--- Updated system.ini values are ---",
-                        "[Engine.Engine]NetworkDevice=" + data["Engine.Engine"]["NetworkDevice"].GetSimpleValue(),
-                        "[Engine.Player]ConfiguredInternetSpeed=" + data["Engine.Player"]["ConfiguredInternetSpeed"].GetSimpleValue(),
-                        "[Engine.Player]ConfiguredLanSpeed=" + data["Engine.Player"]["ConfiguredLanSpeed"].GetSimpleValue(),
-                        "[Engine.TcpNetDriver]MaxClientRate=" + data["Engine.TcpNetDriver"]["MaxClientRate"].GetSimpleValue(),
-                        "[Engine.AgentNetDriver]MaxClientRate=" + data["Engine.AgentNetDriver"]["MaxClientRate"].GetSimpleValue(),
-                        "--- end of updated system.ini values ---",
-                    });
-
-                    if (!DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data)) {
-                        MessageBox.Show("An error has occurred saving the System.ini file, Duke will not be launched...",  "ERROR saving System.ini!", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    Glog.Message(MyTraceCategory.General, $"Successfully wrote updated system.ini at path={this.Dnf2011SystemIniPath}");
                 }
 
-                this.DoSteamThingy();
-
-                Glog.Message(MyTraceCategory.General, $"Starting DNF2011 at path={this.Dnf2011ExePath}");
-                Glog.Message(MyTraceCategory.General, $"Command line args={this.Dnf2011ExeCommandLineArgs}");
-                Process.Start(this.Dnf2011ExePath, this.Dnf2011ExeCommandLineArgs);
+                this.LaunchSyncSteamCloud();
+                this.LaunchStartProcess();
             } catch (Exception ex) {
                 Glog.Error(MyTraceCategory.Command, ex);
             }
@@ -255,169 +401,58 @@ namespace DnfServerSwitcher.ViewModels {
 
         private void LaunchDnf2011Deprecated() {
             try {
-                if (!this.CheckExeExists()) return;
+                if (!this.LaunchValidateContinue())
+                    return;
 
-                if (this.CheckSystemIniExists() == true) {
-                    IniDocument? data = DnfIniParseHelper.ParseDnf2011SystemIni(this.Dnf2011SystemIniPath);
-                    if (data == null) {
-                        MessageBox.Show("An error has occurred parsing the System.ini file, Duke will not be launched...",  "ERROR parsing System.ini!", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (this.IsValidDnf2011SystemIni) {
+                    if (!DnfSystemIniHelper.SetDeprecatedMode(this.Dnf2011SystemIniPath))
                         return;
-                    }
-
-                    Glog.Message(MyTraceCategory.General, $"Successfully parsed system.ini at path={this.Dnf2011SystemIniPath}");
-
-                    data["Engine.Engine"]["NetworkDevice"].SetSimpleValue("Engine.TCPNetDriver");
-                    // set net speeds and client rates to recommended values
-                    data["Engine.Player"]["ConfiguredInternetSpeed"].SetSimpleValue("20000");
-                    data["Engine.Player"]["ConfiguredLanSpeed"].SetSimpleValue("20000");
-                    data["Engine.TcpNetDriver"]["MaxClientRate"].SetSimpleValue("20000");
-                    data["Engine.AgentNetDriver"]["MaxClientRate"].SetSimpleValue("20000");
-
-                    Glog.Message(MyTraceCategory.General, new List<string>() {
-                        "--- Updated system.ini values are ---",
-                        "[Engine.Engine]NetworkDevice=" + data["Engine.Engine"]["NetworkDevice"].GetSimpleValue(),
-                        "[Engine.Player]ConfiguredInternetSpeed=" + data["Engine.Player"]["ConfiguredInternetSpeed"].GetSimpleValue(),
-                        "[Engine.Player]ConfiguredLanSpeed=" + data["Engine.Player"]["ConfiguredLanSpeed"].GetSimpleValue(),
-                        "[Engine.TcpNetDriver]MaxClientRate=" + data["Engine.TcpNetDriver"]["MaxClientRate"].GetSimpleValue(),
-                        "[Engine.AgentNetDriver]MaxClientRate=" + data["Engine.AgentNetDriver"]["MaxClientRate"].GetSimpleValue(),
-                        "--- end of updated system.ini values ---",
-                    });
-
-                    if (!DnfIniParseHelper.WriteDnf2011SystemIni(this.Dnf2011SystemIniPath, data)) {
-                        MessageBox.Show("An error has occurred saving the System.ini file, Duke will not be launched...",  "ERROR saving System.ini!", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    Glog.Message(MyTraceCategory.General, $"Successfully wrote updated system.ini at path={this.Dnf2011SystemIniPath}");
+                }
+                if (this.IsValidDnf2011UserIni) {
+                    DnfUserIniHelper.SetUserIniData(this.Dnf2011UserIniPath,
+                        this.DeprecatedPlayerNameHotkey,
+                        this.DeprecatedPlayerName,
+                        this.UserFieldOfView);
                 }
 
-                this.TryCopyDeprecatedFiles(true);
+                DnfSystemIniHelper.TryCopyDeprecatedFiles(this.Dnf2011ExePath, true);
 
-                this.DoSteamThingy();
-
-                Glog.Message(MyTraceCategory.General, $"Starting DNF2011 at path={this.Dnf2011ExePath}");
-                Glog.Message(MyTraceCategory.General, $"Command line args={this.Dnf2011ExeCommandLineArgs}");
-                Process.Start(this.Dnf2011ExePath, this.Dnf2011ExeCommandLineArgs);
+                this.LaunchSyncSteamCloud();
+                this.LaunchStartProcess();
             } catch (Exception ex) {
                 Glog.Error(MyTraceCategory.Command, ex);
             }
         }
 
-        private static string GetSha256(string filePath) {
-            if (!File.Exists(filePath)) return "";
-            using (SHA256 cks = SHA256.Create()) {
-                byte[] cksBytes = cks.ComputeHash(File.ReadAllBytes(filePath));
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < cksBytes.Length; i++) {
-                    sb.Append(cksBytes[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
+        private void LaunchStartProcess() {
+            Glog.Message(MyTraceCategory.General, $"Starting DNF2011 at path={this.Dnf2011ExePath}");
+            Glog.Message(MyTraceCategory.General, $"Command line args={this.Dnf2011ExeCommandLineArgs}");
+            Process.Start(this.Dnf2011ExePath, this.Dnf2011ExeCommandLineArgs);
+        } 
 
-        private void TryCopyDeprecatedFiles(bool verifyChecksumIfExist) {
-            try {
-                string fileNameMod = "dnWindow.u";
-                string filePathMod = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ThirdParty", fileNameMod);
-                // check mod file exists
-                if (!File.Exists(filePathMod)) {
-                    Glog.Message(MyTraceCategory.General, $"Local copy of dnWindow.u not found in ThirdParty folder at path={filePathMod}");
-                    return;
-                }
-                FileInfo finfo = new FileInfo(this.Dnf2011ExePath);
-
-                // check DNF directory exists
-                if (finfo.Directory?.Exists != true) {
-                    Glog.Message(MyTraceCategory.General, $"DNF2011 System directory not found?!...");
-                    return;
-                }
-
-                FileInfo finfo2 = new FileInfo(Path.Combine(finfo.Directory.FullName, fileNameMod));
-
-                // check if the mod file already exists in the DNF directory
-                if (finfo2.Exists) {
-                    Glog.Message(MyTraceCategory.General, $"The file dnWindow.u already exists in DNF2011 System folder at path={finfo2.FullName}");
-
-                    if (!verifyChecksumIfExist) return;
-
-                    // verify file checksum
-                    string cks = GetSha256(finfo.FullName);
-                    string cks2 = GetSha256(finfo2.FullName);
-
-                    Glog.Message(MyTraceCategory.General, $"App's dnWindow.u SHA256 checksum={cks}");
-                    Glog.Message(MyTraceCategory.General, $"DNF2011's dnWindow.u SHA256 checksum={cks2}");
-
-                    if (string.IsNullOrWhiteSpace(cks) == false &&
-                        string.IsNullOrWhiteSpace(cks2) == false &&
-                        cks == cks2) {
-                        // checksums match, exit
-                        return;
-                    }
-
-                    Glog.Message(MyTraceCategory.General, $"DNF2011's dnWindow.u and App's dnWindow.u have different checksums! Replacing DNF2011's version with the App's version...");
-                }
-                File.Copy(filePathMod, finfo2.FullName, overwrite: true);
-
-                Glog.Message(MyTraceCategory.General, $"The file dnWindow.u was copied over into DNF2011's System fodler at path={finfo2.FullName}");
-            } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.General, ex);
-            }
-        }
-
-
-        private void DoSteamThingy() {
-            if (this.EnableSystemIniSteamCloudSync && this.SteamApi != null) {
+        private void LaunchSyncSteamCloud() {
+            if (this.EnableSteamCloudSync == false || this.SteamApi == null)
+                return;
+            
+            if (this.IsValidDnf2011SystemIni) {
                 Glog.Message(MyTraceCategory.General, $"Attempting to write system.ini to Steam Remote Storage...");
-
-                // NOTE: don't really need this, was mostly for my own debug purposes...
-                // if (!this._steamHelper.ReadAllFiles()) {
-                //     MessageBox.Show("An error has occurred trying to read Steam Remote Storage files for Duke Nukem Forever 2011... See log file for more info.", "Steam Remote Storage Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                //     return;
-                // }
-
-                if (this.SteamApi.WriteSystemIni(this.Dnf2011SystemIniPath) != true) {
+                if (this.SteamApi.WriteFileToRemote(this.Dnf2011SystemIniPath, "system.ini") != true) {
                     MessageBox.Show("An error has occurred trying to write the system.ini file to Steam Remote Storage... See log file for more info.", "Steam Remote Storage Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                }
+            }
+
+            if (this.IsValidDnf2011UserIni) {
+                Glog.Message(MyTraceCategory.General, $"Attempting to write system.ini to Steam Remote Storage...");
+                if (this.SteamApi.WriteFileToRemote(this.Dnf2011UserIniPath, "user.ini") != true) {
+                    MessageBox.Show("An error has occurred trying to write the system.ini file to Steam Remote Storage... See log file for more info.", "Steam Remote Storage Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
-
-        private string GetRemoteCachePath() {
-            try {
-                if (File.Exists(this.Dnf2011SystemIniPath) == false) return "";
-                FileInfo finfo = new FileInfo(this.Dnf2011SystemIniPath);
-                if (finfo.Directory?.Parent == null) return "";
-                string rcvdf = Path.Combine(finfo.Directory.Parent.FullName, "remotecache.vdf");
-                return rcvdf;
-            } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.Command, ex);
-                return "";
-            }
-        }
-
-        private bool CanDeleteRemoteCacheVdf() {
-            try {
-                string path = this.GetRemoteCachePath();
-                return string.IsNullOrWhiteSpace(path) == false && File.Exists(path);
-            } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.Command, ex);
-                return false;
-            }
-        }
-
-        private void DeleteRemoteCacheVdf() {
-            try {
-                string path = this.GetRemoteCachePath();
-                if (string.IsNullOrWhiteSpace(path) || File.Exists(path) == false) return;
-                Glog.Message(MyTraceCategory.General, $"Found remotecache.vdf file at path={path}");
-                File.Delete(path);
-                Glog.Message(MyTraceCategory.General, $"Deleted remotecache.vdf file at path={path}");
-                this._cmdDeleteRemoteCacheVdf?.OnCanExecuteChanged();
-            } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.Command, ex);
-            }
-        }
-
+        
+        #endregion
+        
+        #region File browse
+        
         private void BrowseDnf2011Exe() {
             try {
                 OpenFileDialog ofd = new OpenFileDialog();
@@ -453,7 +488,34 @@ namespace DnfServerSwitcher.ViewModels {
                 Glog.Error(MyTraceCategory.Command, ex);
             }
         }
+        
+        #endregion
 
+        #region RemoteCacheVdf
+
+        private void DeleteRemoteCacheVdf() {
+            try {
+                this.RefreshDnf2011Exe();
+                this.RefreshRemoteCacheVdf();
+
+                if (this.IsValidDnf2011RemoteCacheVdf == false)
+                    return;
+                string path = this.Dnf2011RemoteCacheVdf;
+                
+                Glog.Message(MyTraceCategory.General, $"Found remotecache.vdf file at path={path}");
+                File.Delete(path);
+                Glog.Message(MyTraceCategory.General, $"Deleted remotecache.vdf file at path={path}");
+                
+                this.RefreshRemoteCacheVdf();
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.Command, ex);
+            }
+        }
+        
+        #endregion
+
+        #region Single Player Map
+        
         private void OpenDnfMapWebsite() {
             try {
                 Uri dnfmaps = new Uri(@"https://dnfmaps.com/dnf-2011/", UriKind.Absolute);
@@ -463,37 +525,20 @@ namespace DnfServerSwitcher.ViewModels {
             }
         }
 
-        private string GetMapFolder() {
-            try {
-                if (File.Exists(this.Dnf2011ExePath) == false) return "";
-                FileInfo finfo = new FileInfo(this.Dnf2011ExePath);
-                if (finfo.Directory?.Parent == null) return "";
-                string path = Path.Combine(finfo.Directory.Parent.FullName, "Maps");
-                return path;
-            } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.Command, ex);
-                return "";
-            }
-        }
-
-        private bool CanOpenDnfMap() {
-            try {
-                string mapFolder = this.GetMapFolder();
-                return string.IsNullOrWhiteSpace(mapFolder) == false && Directory.Exists(mapFolder);
-            } catch (Exception ex) {
-                Glog.Error(MyTraceCategory.Command, ex);
-                return false;
-            }
-        }
-
         private void OpenDnfMap() {
             try {
-                string mapFolder = this.GetMapFolder();
-                if (string.IsNullOrWhiteSpace(mapFolder) || Directory.Exists(mapFolder) == false) return;
-                Glog.Message(MyTraceCategory.General, $"Found map folder at path={mapFolder}");
+                this.RefreshDnf2011Exe();
+                this.RefreshDnf2011MapsDirectory();
+
+                if (this.IsValidDnf2011MapsDirectory == false)
+                    return;
+
+                string mapDir = this._dnf2011MapsDirectory;
+                
+                Glog.Message(MyTraceCategory.General, $"Found map folder at path={mapDir}");
 
                 OpenFileDialog ofd = new OpenFileDialog();
-                ofd.InitialDirectory = mapFolder;
+                ofd.InitialDirectory = mapDir;
                 ofd.Filter = "DNF map file|*.dnf";
                 if (ofd.ShowDialog() == true) {
                     FileInfo finfo = new FileInfo(ofd.FileName);
@@ -508,6 +553,44 @@ namespace DnfServerSwitcher.ViewModels {
                 }
             } catch (Exception ex) {
                 Glog.Error(MyTraceCategory.Command, ex);
+            }
+        }
+        
+        #endregion
+
+        private void AutoDetectInstallPaths() {
+            try {
+                Dnf2011Finder df = new Dnf2011Finder();
+                df.FindPaths(this._steamApi);
+
+                if (string.IsNullOrWhiteSpace(df.Dnf2011Exe) == false) {
+                    this.Dnf2011ExePath = df.Dnf2011Exe;
+                }
+                if (string.IsNullOrWhiteSpace(df.Dnf2011SystemIni) == false) {
+                    this.Dnf2011SystemIniPath = df.Dnf2011SystemIni;
+                }
+            } catch (Exception ex) {
+                Glog.Error(MyTraceCategory.Command, ex);
+            }
+        }
+
+        private void AttemptToSetHotkey(Key hotkey) {
+            
+            this.RefreshDnf2011UserIni();
+            if (this.IsValidDnf2011UserIni) {
+                if (!this._hotkeyHelper.RefreshBindingsFromUserIni(this.Dnf2011UserIniPath)) {
+                    MessageBox.Show($"Could not parse user.ini to validate hotkey!", "Hotkey error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                int vk = DnfHotkeyHelper.Key2VirtualKey(hotkey);
+                if (this._hotkeyHelper.CurrentBindings.TryGetValue(vk, out string binding)) {
+                    if (binding.StartsWith("name") == false) {
+                        MessageBox.Show($"Hotkey is already bound to \"{binding}\", choose a different hotkey!", "Hotkey error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                // finally set hotkey..
+                this.SetField(ref this._deprecatedPlayerNameHotkey, hotkey, nameof(this.DeprecatedPlayerNameHotkey));
             }
         }
     }
