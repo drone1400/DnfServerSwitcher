@@ -13,6 +13,9 @@
         MaxHeight="480" MaxWidth="640"
         Icon="../../Resources/nukeswitch.ico"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}">
+    <Window.Resources>
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Views/Styles/DefaultWpfStyles.xaml"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:DnfServerSwitcher"
         xmlns:viewModels="clr-namespace:DnfServerSwitcher.ViewModels"
         xmlns:views="clr-namespace:DnfServerSwitcher.Views"
+        xmlns:controls="clr-namespace:DukNuk.Wpf.Controls;assembly=DukNukWpf"
         mc:Ignorable="d"
         Title="DNF 2011 Server Switcher"
         Height="600" Width="800"
@@ -13,6 +14,9 @@
         Icon="../../Resources/nukeswitch.ico"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
         KeyDown="MainWindow_OnKeyDown">
+    <Window.Resources>
+        <ResourceDictionary Source="pack://application:,,,/DnfServerSwitcher;component/Views/Styles/DefaultWpfStyles.xaml"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -21,31 +25,6 @@
         </Grid.RowDefinitions>
         <views:MenuView Grid.Row="0"/>
         <views:MainView Grid.Row="1">
-            <views:MainView.Resources>
-                <Style TargetType="Label"
-                       BasedOn="{StaticResource {x:Type Label}}">
-                    <Setter Property="VerticalAlignment" Value="Center" />
-                    <Setter Property="HorizontalAlignment" Value="Left" />
-                </Style>
-                <Style TargetType="TextBox"
-                       BasedOn="{StaticResource {x:Type TextBox}}">
-                    <Setter Property="Margin" Value="4" />
-                    <Setter Property="Height" Value="24" />
-                </Style>
-                <Style TargetType="Button"
-                       BasedOn="{StaticResource {x:Type Button}}">
-                    <Setter Property="Margin" Value="4" />
-                    <Setter Property="Height" Value="24" />
-                    <Setter Property="HorizontalAlignment" Value="Center" />
-                    <Setter Property="VerticalAlignment" Value="Center" />
-                </Style>
-                <Style TargetType="ComboBox"
-                       BasedOn="{StaticResource {x:Type ComboBox}}">
-                    <Setter Property="Margin" Value="4" />
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                </Style>
-            </views:MainView.Resources>
         </views:MainView>
     </Grid>
 </Window>
