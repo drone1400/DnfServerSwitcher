@@ -7,7 +7,7 @@
         <UseWPF>true</UseWPF>
         <Nullable>enable</Nullable>
         <LangVersion>10</LangVersion>
-        <Version>1.6.0</Version>
+        <Version>1.6.1</Version>
         <ApplicationIcon>.\Resources\nukeswitch.ico</ApplicationIcon>
     </PropertyGroup>
 

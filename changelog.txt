@@ -1,3 +1,6 @@
+--- V1.6.1
+- Fix GUI control style for FOV Slider when using default WPF theme
+
 --- V1.6
 - added menus
 - replaced some existing troubleshooting controls with menus
