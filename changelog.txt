@@ -1,3 +1,6 @@
+--- V1.6.1
+- fixed GUI control style for FOV counter when using default WPF theme (was missing increment/decrement buttons)
+
 --- V1.6
 - added menus
 - replaced some existing troubleshooting controls with menus
